@@ -1,0 +1,25 @@
+services:
+  treescope-core:
+    container_name: treescope-core
+    build: .
+    image: leyya/treescope-core
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=postgresql+psycopg://postgres:postgres@treescope-core-db:5432/postgres
+    depends_on:
+      - treescope-core-db
+  treescope-core-db:
+    container_name: treescope-core-db
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=treescope
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
