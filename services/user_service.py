@@ -1,10 +1,12 @@
 from models.user import User
 from config.database import db
+from config.auth import guard
 
-def create_user(username, email):
-    user = User(username=username, email=email)
+
+def create_user(username, email, password):
+    user = User(username=username, email=email, password=guard.hash_password(password))
     db.session.add(user)
-    db.session.commit()
+    db.session.commit() 
     return user
 
 def get_user_by_id(user_id):
@@ -29,3 +31,5 @@ def delete_user(user_id):
         db.session.delete(user)
         db.session.commit()
     return user
+
+

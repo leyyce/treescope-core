@@ -17,6 +17,9 @@ try:
     DATABASE_NAME = db_config["DATABASE_NAME"]
     DATABASE_PORT = db_config["DATABASE_PORT"]
     DATABASE_PASSWORD = db_config["DATABASE_PASSWORD"]
+
+    app_config = config["app"]
+    SECRET_KEY = app_config["SECRET_KEY"]
 except KeyError as e:
     raise RuntimeError(f"Fehlender Konfigurationswert: {e}")
 
@@ -29,3 +32,4 @@ SQLALCHEMY_DATABASE_URI = (
 class Config:
     SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = SECRET_KEY

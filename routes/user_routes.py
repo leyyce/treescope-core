@@ -1,44 +1,50 @@
-from flask import Blueprint, request, jsonify
-from services.user_service import create_user, get_user_by_id, get_all_users, update_user, delete_user
-from schema.user_schema import user_schema, users_schema
+from flask import request, jsonify
+from flask_praetorian import auth_required, roles_required
+from flask_restx import Namespace, Resource
+from config.auth import guard
+from models.restx_documentation import create_restx_model
+from models.user import User
+from services.user_service import create_user, get_all_users
 
-user_blueprint = Blueprint("user_routes", __name__)
+# Namespace für die User-API
+user_namespace = Namespace("User", description="User-related operations")
 
-@user_blueprint.route("/users", methods=["POST"])
-def add_user():
-    data = request.get_json()
-    username = data.get("username")
-    email = data.get("email")
-    if not username or not email:
-        return jsonify({"error": "Username and email are required"}), 400
-    user = create_user(username, email)
-    return user_schema.jsonify(user), 201
+user_doc_model = user_namespace.model("User", create_restx_model(User, user_namespace))
 
-@user_blueprint.route("/users/<int:user_id>", methods=["GET"])
-def get_user(user_id):
-    user = get_user_by_id(user_id)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return user_schema.jsonify(user)
+@user_namespace.route("/register")
+class UserRegister(Resource):
+    @user_namespace.expect(user_doc_model)
+    @user_namespace.response(201, "User created")
+    @user_namespace.response(400, "Validation Error")
+    def post(self):
+        """Register a new user."""
+        data = request.get_json()
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+        if not username or not email or not password:
+            return jsonify({"error": "All fields are required"}), 400
+        user = create_user(username, email, password)
+        return jsonify({"message": "User created"}), 201
 
-@user_blueprint.route("/users", methods=["GET"])
-def list_users():
-    users = get_all_users()
-    return users_schema.jsonify(users)
+@user_namespace.route("/login")
+class UserLogin(Resource):
+    @user_namespace.response(200, "Login successful")
+    @user_namespace.response(401, "Unauthorized")
+    def post(self):
+        """Login and retrieve a token."""
+        data = request.get_json()
+        username = data.get("username")
+        password = data.get("password")
+        user = guard.authenticate(username, guard.hash_password(password))
+        return jsonify({"access_token": guard.encode_jwt_token(user)})
 
-@user_blueprint.route("/users/<int:user_id>", methods=["PUT"])
-def edit_user(user_id):
-    data = request.get_json()
-    username = data.get("username")
-    email = data.get("email")
-    user = update_user(user_id, username, email)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return user_schema.jsonify(user)
-
-@user_blueprint.route("/users/<int:user_id>", methods=["DELETE"])
-def remove_user(user_id):
-    user = delete_user(user_id)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return jsonify({"message": "User deleted"}), 200
+@user_namespace.route("/")
+class UserList(Resource):
+    @auth_required
+    @roles_required("admin")
+    @user_namespace.marshal_with(user_doc_model, as_list=True)
+    def get(self):
+        """Retrieve all users (admin only)."""
+        users = get_all_users()
+        return users
