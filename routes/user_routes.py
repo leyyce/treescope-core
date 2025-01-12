@@ -22,10 +22,11 @@ class UserRegister(Resource):
         username = data.get("username")
         email = data.get("email")
         password = data.get("password")
+        roles = data.get("roles")
         if not username or not email or not password:
             return jsonify({"error": "All fields are required"}), 400
-        user = create_user(username, email, password)
-        return jsonify({"message": "User created"}), 201
+        user = create_user(username, email, password, roles)
+        return "message: User created", 201
 
 @user_namespace.route("/login")
 class UserLogin(Resource):
@@ -36,7 +37,7 @@ class UserLogin(Resource):
         data = request.get_json()
         username = data.get("username")
         password = data.get("password")
-        user = guard.authenticate(username, guard.hash_password(password))
+        user = guard.authenticate(username, password)
         return jsonify({"access_token": guard.encode_jwt_token(user)})
 
 @user_namespace.route("/")
@@ -44,6 +45,7 @@ class UserList(Resource):
     @auth_required
     @roles_required("admin")
     @user_namespace.marshal_with(user_doc_model, as_list=True)
+    @user_namespace.header("Authorization", "Auth Header")
     def get(self):
         """Retrieve all users (admin only)."""
         users = get_all_users()

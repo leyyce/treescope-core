@@ -12,7 +12,7 @@ app.config.from_object("config.settings.Config")
 
 # Datenbank initialisieren
 db.init_app(app)
-migrate = Migrate(app, db)
+#migrate = Migrate(app, db)
 
 # Guard initialisieren
 init_guard(app)

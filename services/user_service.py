@@ -3,8 +3,8 @@ from config.database import db
 from config.auth import guard
 
 
-def create_user(username, email, password):
-    user = User(username=username, email=email, password=guard.hash_password(password))
+def create_user(username, email, password, roles):
+    user = User(username=username, email=email, password=guard.hash_password(password), roles=roles)
     db.session.add(user)
     db.session.commit() 
     return user
