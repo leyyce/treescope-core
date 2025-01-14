@@ -1,3 +1,4 @@
+from flask_praetorian import auth_required
 from flask_restx import Resource
 
 from .service import UserService
@@ -5,8 +6,9 @@ from .dto import UserDto
 
 ns = UserDto.ns
 
-@ns.route('/<string:username>')
-@ns.param('username', 'The username')
+
+@ns.route('/<int:id>')
+@ns.param('id', 'The user identifier')
 class User(Resource):
     @ns.doc(
         "Get a specific user",
@@ -16,9 +18,12 @@ class User(Resource):
         },
     )
     @ns.marshal_with(UserDto.user)
-    def get(self, username):
+    @auth_required
+    def get(self, id):
         """get a user given its username"""
-        user = UserService.get_user(username)
+        # guard.get_user_from_registration_token()
+        user = UserService.get_user(id)
         if not user:
             ns.abort(404)
-        return user
+        else:
+            return user
