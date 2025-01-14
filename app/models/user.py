@@ -43,7 +43,6 @@ class User(db.Model, SQLAlchemyUserMixin):
 
     __table_args__ = (
         CheckConstraint('xp >= 0', name='check_xp_positive'),
-        CheckConstraint('length(salt) = 256', name='check_salt_length'),
     )
 
     def __init__(self, *args, **kwargs):
