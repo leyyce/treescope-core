@@ -6,6 +6,7 @@ from app.api.users.dto import UserDto
 class AuthDto:
     ns = Namespace("auth", description="Authenticate and receive tokens.", path="/")
     ns.add_model("user", UserDto.user)
+    ns.add_model("role", UserDto.role)
 
     auth_login = ns.model(
         "Login data",
