@@ -5,5 +5,9 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(32).hex()
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URI') or 'postgresql://postgres:postgres@localhost:5432/treescope'
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        'DATABASE_URI') or 'postgresql://postgres:postgres@localhost:5432/treescope'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_ACCESS_LIFESPAN = {"hours": 24}
+    JWT_REFRESH_LIFESPAN = {"days": 30}
+    JWT_PLACES = ['header']

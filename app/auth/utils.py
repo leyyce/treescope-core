@@ -5,7 +5,7 @@ from marshmallow.validate import Regexp, Length
 
 def validate_decimal_precision(value, max_digits, decimal_places):
     value_str = format(value, 'f')  # Convert Decimal to string without scientific notation
-    integer_part, _, fractional_part = value_str.partition(".")
+    integer_part, _, fractional_part = value_str.partition('.')
 
     if len(integer_part.lstrip('-')) > (max_digits - decimal_places):
         raise ValidationError(f"Value {value} exceeds max digits ({max_digits - decimal_places} before decimal).")

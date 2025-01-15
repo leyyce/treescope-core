@@ -33,7 +33,7 @@ class User(db.Model, SQLAlchemyUserMixin):
     email: Mapped[str] = mapped_column(nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     verified: Mapped[bool] = mapped_column(default=False, nullable=False)
-    trust_level: Mapped[int] = mapped_column(ForeignKey("trust_level.id"), default=1, nullable=False)
+    trust_level: Mapped[int] = mapped_column(ForeignKey('trust_level.id'), default=1, nullable=False)
     roles = db.relationship('Role', secondary=user_roles, lazy='dynamic', backref=db.backref('users', lazy='dynamic'))
     xp: Mapped[int] = mapped_column(default=0, nullable=False)
     latitude: Mapped[Decimal] = mapped_column(DECIMAL(8, 6), nullable=True)

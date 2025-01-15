@@ -11,11 +11,12 @@ ns = UserDto.ns
 @ns.param('id', 'The user identifier')
 class User(Resource):
     @ns.doc(
-        "Get a specific user",
+        'Get a specific user',
         responses={
-            200: ("User data successfully sent", UserDto.user),
-            404: "User not found!",
+            200: ('User data successfully sent', UserDto.user),
+            404: 'User not found!',
         },
+        security='jwt_header',
     )
     @ns.marshal_with(UserDto.user)
     @auth_required
@@ -24,6 +25,5 @@ class User(Resource):
         # guard.get_user_from_registration_token()
         user = UserService.get_user(id)
         if not user:
-            ns.abort(404)
-        else:
-            return user
+            ns.abort(404, f"User with id '{id}' not found")
+        return user

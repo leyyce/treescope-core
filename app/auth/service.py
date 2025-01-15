@@ -8,15 +8,15 @@ class AuthService:
     @staticmethod
     def login(data):
         # Assign vars
-        username = data["username"]
-        password = data["password"]
+        username = data['username']
+        password = data['password']
 
         try:
             user = guard.authenticate(username, password)
 
             resp = {
-                "access_token": guard.encode_jwt_token(user),
-                "user": user,
+                'access_token': guard.encode_jwt_token(user),
+                'user': user,
             }
 
             return resp, 200
@@ -28,23 +28,23 @@ class AuthService:
         # Assign vars
 
         ## Required values
-        email = data["email"]
-        username = data["username"]
-        password = data["password"]
+        email = data['email']
+        username = data['username']
+        password = data['password']
 
         ## Optional
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        longitude = data.get("longitude")
-        latitude = data.get("latitude")
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+        longitude = data.get('longitude')
+        latitude = data.get('latitude')
 
         # Check if the email is taken
         if User.query.filter_by(email=email).first() is not None:
-            return "Email is already being used.", 403
+            return 'Email is already being used.', 403
 
         # Check if the username is taken
         if User.query.filter_by(username=username).first() is not None:
-            return "Username is already taken.", 403
+            return 'Username is already taken.', 403
 
         new_user = User(
             email=email,
@@ -66,8 +66,8 @@ class AuthService:
         access_token = guard.encode_jwt_token(new_user)
 
         resp = {
-            "access_token": access_token,
-            "user": new_user,
+            'access_token': access_token,
+            'user': new_user,
         }
 
         return resp, 201

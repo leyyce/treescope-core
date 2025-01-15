@@ -28,7 +28,7 @@ class UserDto:
     data_resp = ns.model(
         'User Data Response',
         {
-            "status": fields.Boolean,
-            "message": fields.String,
-            "user": fields.Nested(user),
+            'status': fields.Boolean,
+            'message': fields.String,
+            'user': fields.Nested(user),
         })
