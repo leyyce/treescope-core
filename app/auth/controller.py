@@ -60,7 +60,7 @@ class AuthRegister(Resource):
         responses={
             201: ('Successfully registered user.', auth_success),
             400: 'Malformed data or validations failed.',
-            403: 'Email or username already exists.'
+            401: 'Email or username already exists.'
         },
     )
     @ns.expect(auth_register, validate=True)
