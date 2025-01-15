@@ -64,7 +64,7 @@ class AuthRegister(Resource):
         },
     )
     @ns.expect(auth_register, validate=True)
-    @ns.marshal_with(auth_success)
+    @ns.marshal_with(auth_success, code=201)
     def post(self):
         """ User registration """
         # Grab the json data
