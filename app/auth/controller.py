@@ -27,8 +27,7 @@ class AuthLogin(Resource):
         responses={
             200: ('Logged in', auth_success),
             400: 'Validations failed.',
-            403: 'Incorrect password or wrong username.',
-            404: 'Email does not match any account.',
+            401: 'Incorrect password or wrong username.',
         },
     )
     @ns.expect(auth_login, validate=True)
@@ -60,7 +59,7 @@ class AuthRegister(Resource):
         responses={
             201: ('Successfully registered user.', auth_success),
             400: 'Malformed data or validations failed.',
-            401: 'Email or username already exists.'
+            403: 'Email or username already exists.'
         },
     )
     @ns.expect(auth_register, validate=True)
