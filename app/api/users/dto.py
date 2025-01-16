@@ -1,5 +1,7 @@
 from flask_restx import Namespace, fields
 
+from app.api.dto import pagination_base
+
 
 class UserDto:
     ns = Namespace('users', description='User related operations')
@@ -32,3 +34,7 @@ class UserDto:
             'message': fields.String,
             'user': fields.Nested(user),
         })
+
+    user_page = ns.inherit('user_page', pagination_base, {
+        'users': fields.List(fields.Nested(user, many=True, skip_none=True)),
+    })
