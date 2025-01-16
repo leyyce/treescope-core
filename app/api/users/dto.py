@@ -25,6 +25,16 @@ class UserDto:
         'updated_at': fields.DateTime(readOnly=True, description='user last update date'),
     })
 
+    user_update = ns.model('user_update', {
+        'email': fields.String(required=False, description='user email address'),
+        'username': fields.String(required=False, description='username'),
+        'password': fields.String(required=False, description='password'),
+        'first_name': fields.String(required=False, description='first name'),
+        'last_name': fields.String(required=False, description='last name'),
+        'latitude': fields.Float(required=False, description='user latitude'),
+        'longitude': fields.Float(required=False, description='user longitude'),
+    })
+
     data_resp = ns.model(
         'User Data Response',
         {
