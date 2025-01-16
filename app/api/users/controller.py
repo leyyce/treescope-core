@@ -22,6 +22,7 @@ class UserList(Resource):
     @ns.expect(pagination_parser)
     @roles_required("Admin")
     def get(self):
+        """get a paginated list of all registered users"""
         return UserService.get_users()
 
 @ns.route('/<int:id>')
