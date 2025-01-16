@@ -35,6 +35,6 @@ class UserDto:
             'user': fields.Nested(user),
         })
 
-    user_page = ns.inherit('user_page', pagination_base, {
+    user_page = ns.clone('user_page', pagination_base, {
         'users': fields.List(fields.Nested(user, many=True, skip_none=True)),
     })
