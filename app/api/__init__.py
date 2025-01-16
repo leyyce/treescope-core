@@ -1,6 +1,7 @@
 from flask import Blueprint
 from flask_restx import Api
 
+from .dto import pagination_base
 from .users.controller import ns as user_ns
 from ..utils import jwt_authorizations_doc
 
@@ -13,5 +14,7 @@ api = Api(
     description='Treescope API - Version 1.0 provides endpoints for user operations and more.',
     authorizations=jwt_authorizations_doc
 )
+
+api.add_model('pagination_base', pagination_base)
 
 api.add_namespace(user_ns)

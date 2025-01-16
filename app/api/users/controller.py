@@ -1,15 +1,32 @@
-from flask_praetorian import auth_required
+from flask_praetorian import auth_required, roles_required
 from flask_restx import Resource
 from flask import request
 
 from app.extensions import guard
 from .service import UserService
 from .dto import UserDto
-from .utils import UserSchema, UserUpdSchema
+from .utils import UserSchema, UserUpdSchema, pagination_parser
 
 user_schema_upd = UserUpdSchema()
 ns = UserDto.ns
 
+@ns.route('/')
+class UserList(Resource):
+    @ns.doc(
+        'List of all registered users',
+        responses={
+            200: ('List of users successfully sent', UserDto.user_page),
+            401: 'Missing Authorization Header',
+            403: 'Missing required roles',
+        },
+        security='jwt_header',
+    )
+    @ns.marshal_list_with(UserDto.user_page)
+    @ns.expect(pagination_parser)
+    @roles_required("Admin")
+    def get(self):
+        """get a paginated list of all registered users"""
+        return UserService.get_users()
 
 @ns.route('/<int:id>')
 @ns.param('id', 'The user identifier')
