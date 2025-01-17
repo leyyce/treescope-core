@@ -3,11 +3,13 @@ from flask_restx import Resource
 from flask import request
 
 from app.extensions import guard
+from app.auth.utils import get_user_from_token
 from .service import UserService
 from .dto import UserDto
-from .utils import UserSchema, UserUpdSchema, pagination_parser
+from .utils import pagination_parser, UpdateSchema
 
-user_schema_upd = UserUpdSchema()
+update_schema = UpdateSchema()
+
 ns = UserDto.ns
 
 @ns.route('/')
@@ -23,7 +25,7 @@ class UserList(Resource):
     )
     @ns.marshal_list_with(UserDto.user_page)
     @ns.expect(pagination_parser)
-    @roles_required("Admin")
+    @auth_required
     def get(self):
         """get a paginated list of all registered users"""
         return UserService.get_users()
@@ -31,9 +33,6 @@ class UserList(Resource):
 @ns.route('/<int:id>')
 @ns.param('id', 'The user identifier')
 class User(Resource):
-
-    user_ = UserDto.user_update
-
     @ns.doc(
         'Get a specific user',
         responses={
@@ -45,7 +44,7 @@ class User(Resource):
     @ns.marshal_with(UserDto.user)
     @auth_required
     def get(self, id):
-        """get a user given its username"""
+        """get a user given its ID"""
         # guard.get_user_from_registration_token()
         user = UserService.get_user(id)
         if not user:
@@ -56,44 +55,41 @@ class User(Resource):
         'Update a specific user',
         responses={
             200: 'User updated successfully',
-            403: 'Unauthorized',
+            400: 'Validations failed.',
+            401: 'Unauthorized',
+            403: 'Email or username already exists.',
             404: 'User not found!',
-            500: 'Update failed'
         },
         security='jwt_header',
     )
-    @ns.expect(user_, validate=True)
+    @ns.expect(UserDto.user_update, validate=True)
+    @ns.marshal_with(UserDto.user)
     @auth_required
-    def put(self, id):
+    def patch(self, id):
         """update user data"""
-        data_ = request.get_json()
-        if errors := user_schema_upd.validate(data_):
+        user_data = request.get_json()
+        if errors := update_schema.validate(user_data):
             ns.abort(400, errors)
-        
-        # Token aus dem Authorization-Header extrahieren
-        token = guard.read_token_from_header()
-        # Token-Daten dekodieren
-        token_data = guard.extract_jwt_token(token)
-        # Benutzer-ID aus dem Payload abrufen
-        user_id = token_data.get('id')
-        roles = token_data.get('rls', [])
 
-        if 'Admin' in roles:
-            response, code = UserService.update_user(data_, id)
-            return code, response
-        elif(user_id == id):
-            response, code = UserService.update_user(data_, id)
-            return code, response
-        else:
-            ns.abort(403, f"Access Denied, Unauthorized User")
+        token = guard.read_token_from_header()
+        user = get_user_from_token(token)
+
+        if not user:
+            ns.abort(401, "User not logged in or user that is logged in doesn't exist anymore.")
+
+        if 'Admin' in user.rolenames or user.id == id:
+            response, code = UserService.update_user(id, user_data)
+            if code != 200:
+                ns.abort(code, response)
+            return response, code
+        ns.abort(401, 'Access denied, unauthorized user')
     
     @ns.doc(
         'Delete a specific user',
         responses={
             200: 'User deleted successfully',
-            403: 'Unauthorized',
+            401: 'Unauthorized',
             404: 'User not found!',
-            500: 'Delete failed' 
         },
         security='jwt_header',
     )
@@ -101,22 +97,13 @@ class User(Resource):
     def delete(self, id):
         """delete user data"""
 
-        # Token aus dem Authorization-Header extrahieren
         token = guard.read_token_from_header()
-        # Token-Daten dekodieren
-        token_data = guard.extract_jwt_token(token)
-        # Benutzer-ID aus dem Payload abrufen
-        user_id = token_data.get('id')
-        roles = token_data.get('rls', [])
+        user = get_user_from_token(token)
 
-        if 'Admin' in roles:
+        if not user:
+            ns.abort(401, "User not logged in or user that is logged in doesn't exist anymore.")
+
+        if 'Admin' in user.rolenames or user.id == id:
             response, code = UserService.delete_user(id)
-            return code, response
-        elif(user_id == id):
-            response, code = UserService.delete_user(id)
-            return code, response
-        else:
-            ns.abort(403, f"Access Denied, Unauthorized User")
-
-
-
+            return response, code
+        ns.abort(401, 'Access denied, unauthorized user')

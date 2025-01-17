@@ -1,6 +1,8 @@
-# Validations with Marshmallow
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import Schema, fields, ValidationError, validates_schema
 from marshmallow.validate import Regexp, Length
+
+from ..extensions import guard
+from ..models.user import User
 
 
 def validate_decimal_precision(value, max_digits, decimal_places):
@@ -13,6 +15,19 @@ def validate_decimal_precision(value, max_digits, decimal_places):
         raise ValidationError(f"Value {value} exceeds max decimal places ({decimal_places}).")
 
 
+def get_user_from_token(token):
+    """
+    Gets a user based on the registration token that is supplied. Verifies
+    that the token is a regisration token and that the user can be properly
+    retrieved
+    """
+    data = guard.extract_jwt_token(token)
+    user_id = data.get("id")
+    if user_id is None:
+        return None
+    user = User.query.get(user_id)
+    return user
+
 class LoginSchema(Schema):
     """ /auth/login [POST]
 
@@ -24,6 +39,7 @@ class LoginSchema(Schema):
     username = fields.Str(required=True, validate=[Length(min=4, max=15)])
     password = fields.Str(required=True, validate=[Length(min=8, max=128)])
 
+# Validations with Marshmallow
 
 class RegisterSchema(Schema):
     """ /auth/register [POST]
@@ -88,3 +104,10 @@ class RegisterSchema(Schema):
             lambda value: validate_decimal_precision(value, 9, 6),
         ],
     )
+
+    @validates_schema
+    def validate_required_fields(self, data, **kwargs):
+        if 'latitude' in data and 'longitude' not in data:
+            raise ValidationError('Provided latitude without longitude.')
+        if 'longitude' in data and 'latitude' not in data:
+            raise ValidationError('Provided longitude without latitude.')
