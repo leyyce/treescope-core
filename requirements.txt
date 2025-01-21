@@ -12,3 +12,4 @@ gunicorn~=23.0.0
 pytest~=8.3.4
 marshmallow~=3.25.0
 alembic~=1.14.0
+Flask-Cors~=5.0.0
