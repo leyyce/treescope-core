@@ -24,12 +24,10 @@ services:
       - POSTGRES_DB=treescope
     volumes:
       - pgdata:/var/lib/postgresql/data
-  mail:
-    container_name: treescope-core-mail
-    image: marcopas/docker-mailslurper
+  mailer:
+    container_name: treescope-core-mailer
+    image: maildev/maildev
     ports:
-      - "8080:8080"
-      - "8085:8085"
-      - "2500:2500"
+      - "1080:1080"
 volumes:
   pgdata: {}

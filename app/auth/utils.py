@@ -1,9 +1,11 @@
+from flask_restx.reqparse import RequestParser
 from marshmallow import Schema, fields, ValidationError, validates_schema
 from marshmallow.validate import Regexp, Length
 
-from ..extensions import guard
-from ..models.user import User
-
+finalization_parser = RequestParser()
+(finalization_parser.add_argument(
+    "token", type=str, required=True, location='args', help="Registration token"
+))
 
 def validate_decimal_precision(value, max_digits, decimal_places):
     value_str = format(value, 'f')  # Convert Decimal to string without scientific notation

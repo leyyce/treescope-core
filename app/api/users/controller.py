@@ -19,11 +19,11 @@ class UserList(Resource):
             401: 'Missing Authorization Header',
             403: 'Missing required roles',
         },
-        security='jwt_header',
+        # security='jwt_header',
     )
     @ns.marshal_list_with(UserDto.user_page)
     @ns.expect(pagination_parser)
-    @auth_required
+    # @auth_required
     def get(self):
         """get a paginated list of all registered users"""
         return UserService.get_users()
@@ -37,10 +37,10 @@ class User(Resource):
             200: ('User data successfully sent', UserDto.user),
             404: 'User not found!',
         },
-        security='jwt_header',
+        # security='jwt_header',
     )
     @ns.marshal_with(UserDto.user)
-    @auth_required
+    # @auth_required
     def get(self, id):
         """get a user given its ID"""
         # guard.get_user_from_registration_token()

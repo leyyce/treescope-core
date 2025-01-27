@@ -2,9 +2,10 @@ from flask import request
 from flask_praetorian.exceptions import PraetorianError
 from flask_restx import Resource
 from .dto import AuthDto
-from .utils import LoginSchema, RegisterSchema
+from .utils import LoginSchema, RegisterSchema, finalization_parser
 from .service import AuthService
 from ..api.users.dto import UserDto
+from app.extensions import db, guard
 
 login_schema = LoginSchema()
 register_schema = RegisterSchema()
@@ -77,6 +78,18 @@ class AuthRegister(Resource):
             ns.abort(code, response)
         return response, code
 
+@ns.route('/finalize')
+class AuthFinalize(Resource):
+    @ns.expect(finalization_parser)
+    def get(self):
+        """ Finalize user """
+        args = finalization_parser.parse_args()
+        user = guard.get_user_from_registration_token(args.get('token'))
+        if user is None:
+            ns.abort(401)
+        user.verified = True
+        db.session.commit()
+        return "Success", 200
 
 @user_ns.errorhandler(PraetorianError)
 def handle_praetorian_error(error):
