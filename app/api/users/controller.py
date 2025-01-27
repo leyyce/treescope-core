@@ -1,9 +1,7 @@
-from flask_praetorian import auth_required
+from flask_praetorian import auth_required, current_user
 from flask_restx import Resource
 from flask import request
 
-from app.extensions import guard
-from app.auth.utils import get_user_from_token
 from .service import UserService
 from .dto import UserDto
 from .utils import pagination_parser, UpdateSchema
@@ -71,8 +69,7 @@ class User(Resource):
         if errors := update_schema.validate(user_data):
             ns.abort(400, errors)
 
-        token = guard.read_token_from_header()
-        user = get_user_from_token(token)
+        user = current_user()
 
         if not user:
             ns.abort(401, "User not logged in or user that is logged in doesn't exist anymore.")
@@ -97,8 +94,7 @@ class User(Resource):
     def delete(self, id):
         """delete user data"""
 
-        token = guard.read_token_from_header()
-        user = get_user_from_token(token)
+        user = current_user()
 
         if not user:
             ns.abort(401, "User not logged in or user that is logged in doesn't exist anymore.")
