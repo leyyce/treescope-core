@@ -91,6 +91,7 @@ class AuthFinalize(Resource):
         db.session.commit()
         return "Success", 200
 
+@ns.errorhandler(PraetorianError)
 @user_ns.errorhandler(PraetorianError)
 def handle_praetorian_error(error):
     """Return a custom message and status code when the user did not provide a JWT"""
