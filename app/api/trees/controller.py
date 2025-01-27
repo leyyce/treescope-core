@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Resource
-from flask_praetorian import auth_required, roles_required
+from flask_praetorian import auth_required
 
 from app.extensions import guard
 from app.auth.utils import get_user_from_token

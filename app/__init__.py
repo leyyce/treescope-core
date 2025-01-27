@@ -3,7 +3,7 @@ from flask import Flask
 from .api import api_v1_pb
 from config import Config
 from .auth import auth_pb
-from .api.trees._init_ import api_tree
+from .api.trees.__init__ import api_tree
 from .extensions import db, migrate, guard, cors
 from .models.user import User, TrustLevel, Role
 
@@ -18,7 +18,6 @@ def create_app(config_class=Config):
     # Register blueprints here
     app.register_blueprint(api_v1_pb, url_prefix='/api/v1')
     app.register_blueprint(auth_pb, url_prefix='/auth')
-    app.register_blueprint(api_tree, url_prefix='/tree')
 
     @app.route('/test/')
     def test_page():

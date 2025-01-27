@@ -1,4 +1,4 @@
-from flask_praetorian import auth_required, roles_required
+from flask_praetorian import auth_required
 from flask_restx import Resource
 from flask import request
 

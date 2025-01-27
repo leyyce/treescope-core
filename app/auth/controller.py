@@ -33,7 +33,7 @@ class AuthLogin(Resource):
     @ns.expect(auth_login, validate=True)
     @ns.marshal_with(auth_success)
     def post(self):
-        """ Login using email and password """
+        """ Login using username and password """
         # Grab the json data
         login_data = request.get_json()
 
