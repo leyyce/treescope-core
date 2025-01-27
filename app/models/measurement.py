@@ -7,14 +7,14 @@ class Measurement(db.Model):
     __tablename__ = 'measurements'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    treeid: Mapped[int] = mapped_column(ForeignKey('trees.id'), nullable=False)
-    userid: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
-    suspectedtreetype: Mapped[str] = mapped_column(String(128), nullable=True)
+    tree_id: Mapped[int] = mapped_column(ForeignKey('trees.id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
+    suspected_tree_type: Mapped[str] = mapped_column(String(128), nullable=True)
     height: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
     inclination: Mapped[int] = mapped_column(Integer, nullable=False)
-    trunkdiameter: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
+    trunk_diameter: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
-    collectedat: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
     tree: Mapped['Tree'] = db.relationship(back_populates='measurements')
 
     __table_args__ = (
@@ -29,5 +29,5 @@ class Measurement(db.Model):
 # Event listener to set createdat before insert
 @event.listens_for(Measurement, 'before_insert')
 def set_createdat(mapper, connection, target):
-    if target.collectedat is None:
-        target.collectedat = func.now()
+    if target.created_at is None:
+        target.created_at = func.now()

@@ -16,7 +16,7 @@ tree_update_schema = TreeUpdateSchema()
 tree_schema = TreeSchema()
 measurement_schema = MeasurementSchema()
 
-@ns.route('/createtree')
+@ns.route('/')
 class CreateTree(Resource):
     @ns.doc(
         'Tree and measurement creation',
@@ -27,7 +27,7 @@ class CreateTree(Resource):
         security='jwt_header',
     )
     @ns.expect(TreeDto.tree_create)
-    @ns.expect(photo_upload_parser)
+    #@ns.expect(photo_upload_parser) funktioniert nicht
     @auth_required
     def post(self):
         """Create a Tree with measurements and photos"""

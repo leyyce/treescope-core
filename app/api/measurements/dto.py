@@ -6,21 +6,21 @@ class MeasurementDto:
 
     measurement = ns.model('measurement', {
         'id': fields.Integer(readonly=True, description='Measurement unique identifier'),
-        'treeid': fields.Integer(required=True, description='Related tree ID'),
-        'userid': fields.Integer(required=False, description='Related user ID'),
-        'suspectedtreetype': fields.String(required=False, description='Suspected tree type'),
+        'tree_id': fields.Integer(required=True, description='Related tree ID'),
+        'user_id': fields.Integer(required=False, description='Related user ID'),
+        'suspected_tree_type': fields.String(required=False, description='Suspected tree type'),
         'height': fields.Float(required=True, description='Height of the tree in meters'),
         'inclination': fields.Integer(required=True, description='Inclination angle in degrees'),
-        'trunkdiameter': fields.Float(required=True, description='Trunk diameter in meters'),
+        'trunk_diameter': fields.Float(required=True, description='Trunk diameter in meters'),
         'notes': fields.String(required=False, description='Additional notes'),
-        'collectedat': fields.DateTime(readonly=True, description='Measurement collection date'),
+        'collected_at': fields.DateTime(readonly=True, description='Measurement collection date'),
     })
 
     create_measurement = ns.model('create_measurement', {
-        'suspectedtreetype': fields.String(required=False, description='Suspected tree type'),
+        'suspected_tree_type': fields.String(required=False, description='Suspected tree type'),
         'height': fields.Float(required=True, description='Height of the tree in meters'),
         'inclination': fields.Integer(required=True, description='Inclination angle in degrees'),
-        'trunkdiameter': fields.Float(required=True, description='Trunk diameter in meters'),
+        'trunk_diameter': fields.Float(required=True, description='Trunk diameter in meters'),
         'notes': fields.String(required=False, description='Additional notes'),
     })
 

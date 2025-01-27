@@ -92,11 +92,11 @@ def encode_image_to_base64(file_path):
 
 class TreePhotoSchema(Schema):
     filename = fields.String(required=False)
-    photodata = fields.String(required=False)
+    photo_data = fields.String(required=False)
     description = fields.String(required=False, validate=Length(max=256))
    
 class MeasurementSchema(Schema):
-    suspectedtreetype = fields.String(required=False, validate=validate.Length(max=128))
+    suspected_tree_type = fields.String(required=False, validate=validate.Length(max=128))
     height = fields.Decimal(
         required=True,
         validate=validate.Range(min=Decimal("0.01"))  # Höhe muss positiv sein
@@ -105,7 +105,7 @@ class MeasurementSchema(Schema):
         required=True,
         validate=validate.Range(min=0, max=90)  # Neigung muss zwischen 0 und 90 liegen
     )
-    trunkdiameter = fields.Decimal(
+    trunk_diameter = fields.Decimal(
         required=True,
         validate=validate.Range(min=Decimal("0.01"))  # Durchmesser muss positiv sein
     )
@@ -120,7 +120,7 @@ class TreeSchema(Schema):
     - Longitude (Float)
     - Health Status (String)
     """
-    treetype = fields.String(required=False, validate=validate.Length(max=128))
+    tree_type = fields.String(required=False, validate=validate.Length(max=128))
     latitude = fields.Decimal(
         as_string=True,
         required=True,
@@ -142,7 +142,7 @@ class TreeSchema(Schema):
             lambda value: validate_decimal_precision(value, 9, 6),
         ],
     )
-    healthstatus = fields.Integer(required=False, default=1)
+    health_status = fields.Integer(required=False, default=1)
     measurements = fields.List(Nested(MeasurementSchema), required=False)
     files = fields.List(Nested(TreePhotoSchema), required=False)
 
@@ -156,7 +156,7 @@ class TreeUpdateSchema(Schema):
     """
 
     id = fields.Integer(dump_only=True)
-    treetype = fields.String(required=False, validate=validate.Length(max=128))
+    tree_type = fields.String(required=False, validate=validate.Length(max=128))
     latitude = fields.Decimal(
         as_string=True,
         required=False,
@@ -178,7 +178,7 @@ class TreeUpdateSchema(Schema):
             lambda value: validate_decimal_precision(value, 9, 6),
         ],
     )
-    healthstatus = fields.String(
+    health_status = fields.String(
         required=False,
         validate=OneOf(
             ["Unknown", "Unhealthy", "Healthy"],
