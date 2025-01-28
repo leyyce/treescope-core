@@ -19,7 +19,7 @@ class TreeDto:
         'user_id': fields.Integer(required=False, description='Related user ID'),
         'photopath': fields.String(required=True, description='Path to the photo'),
         'description': fields.String(required=False, description='Photo description'),
-        'uploaded_at': fields.DateTime(readonly=True, description='Photo upload date'),
+        'updated_at': fields.DateTime(readonly=True, description='Photo upload date'),
     })
 
     tree_photo_create = ns.model('tree_photo', {

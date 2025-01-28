@@ -16,7 +16,7 @@ tree_update_schema = TreeUpdateSchema()
 tree_schema = TreeSchema()
 measurement_schema = MeasurementSchema()
 
-@ns.route('/')
+@ns.route('/createtree')
 class CreateTree(Resource):
     @ns.doc(
         'Tree and measurement creation',
