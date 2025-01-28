@@ -62,6 +62,8 @@ class AuthService:
         # Commit changes to DB
         db.session.commit()
 
+        guard.send_registration_email(email, user=new_user)
+
         # Create an access token
         access_token = guard.encode_jwt_token(new_user)
 

@@ -2,9 +2,10 @@ from flask import request
 from flask_praetorian.exceptions import PraetorianError
 from flask_restx import Resource
 from .dto import AuthDto
-from .utils import LoginSchema, RegisterSchema
+from .utils import LoginSchema, RegisterSchema, finalization_parser
 from .service import AuthService
 from ..api.users.dto import UserDto
+from app.extensions import db, guard
 
 login_schema = LoginSchema()
 register_schema = RegisterSchema()
@@ -33,7 +34,7 @@ class AuthLogin(Resource):
     @ns.expect(auth_login, validate=True)
     @ns.marshal_with(auth_success)
     def post(self):
-        """ Login using email and password """
+        """ Login using username and password """
         # Grab the json data
         login_data = request.get_json()
 
@@ -77,7 +78,20 @@ class AuthRegister(Resource):
             ns.abort(code, response)
         return response, code
 
+@ns.route('/finalize')
+class AuthFinalize(Resource):
+    @ns.expect(finalization_parser)
+    def get(self):
+        """ Finalize user """
+        args = finalization_parser.parse_args()
+        user = guard.get_user_from_registration_token(args.get('token'))
+        if user is None:
+            ns.abort(401)
+        user.verified = True
+        db.session.commit()
+        return "Success", 200
 
+@ns.errorhandler(PraetorianError)
 @user_ns.errorhandler(PraetorianError)
 def handle_praetorian_error(error):
     """Return a custom message and status code when the user did not provide a JWT"""

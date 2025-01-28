@@ -9,7 +9,7 @@ services:
       - FLASK_RUN_HOST=0.0.0.0
       - FLASK_RUN_PORT=5000
       - FLASK_ENV=development
-      - DATABASE_URI=postgresql://postgres:postgres@172.18.0.2:5432/treescope
+      - DATABASE_URI=postgresql://postgres:postgres@treescope-core-db:5432/treescope
       # - SECRET_KEY=<THE SECRET KEY>
     depends_on:
       - treescope-core-db
@@ -24,6 +24,10 @@ services:
       - POSTGRES_DB=treescope
     volumes:
       - pgdata:/var/lib/postgresql/data
-
+  mailer:
+    container_name: treescope-core-mailer
+    image: maildev/maildev
+    ports:
+      - "1080:1080"
 volumes:
   pgdata: {}

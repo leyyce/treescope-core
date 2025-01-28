@@ -3,8 +3,8 @@ from flask_restx import Api
 
 from .dto import pagination_base
 from .users.controller import ns as user_ns
-from app.api.trees.controller import ns as tree_ns
-from app.api.measurements.dto import MeasurementDto
+from .trees.controller import ns as tree_ns
+from .measurements.controller import ns as measurement_ns
 from ..utils import jwt_authorizations_doc
 
 api_v1_pb = Blueprint('api_v1', __name__)
@@ -21,4 +21,4 @@ api.add_model('pagination_base', pagination_base)
 
 api.add_namespace(user_ns)
 api.add_namespace(tree_ns)
-api.add_namespace(MeasurementDto.ns)
+api.add_namespace(measurement_ns)

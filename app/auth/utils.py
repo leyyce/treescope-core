@@ -1,9 +1,11 @@
+from flask_restx.reqparse import RequestParser
 from marshmallow import Schema, fields, ValidationError, validates_schema
 from marshmallow.validate import Regexp, Length
 
-from ..extensions import guard
-from ..models.user import User
-
+finalization_parser = RequestParser()
+(finalization_parser.add_argument(
+    "token", type=str, required=True, location='args', help="Registration token"
+))
 
 def validate_decimal_precision(value, max_digits, decimal_places):
     value_str = format(value, 'f')  # Convert Decimal to string without scientific notation
@@ -13,20 +15,6 @@ def validate_decimal_precision(value, max_digits, decimal_places):
         raise ValidationError(f"Value {value} exceeds max digits ({max_digits - decimal_places} before decimal).")
     if len(fractional_part) > decimal_places:
         raise ValidationError(f"Value {value} exceeds max decimal places ({decimal_places}).")
-
-
-def get_user_from_token(token):
-    """
-    Gets a user based on the registration token that is supplied. Verifies
-    that the token is a regisration token and that the user can be properly
-    retrieved
-    """
-    data = guard.extract_jwt_token(token)
-    user_id = data.get("id")
-    if user_id is None:
-        return None
-    user = User.query.get(user_id)
-    return user
 
 class LoginSchema(Schema):
     """ /auth/login [POST]

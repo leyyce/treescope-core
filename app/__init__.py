@@ -3,7 +3,7 @@ from flask import Flask
 from .api import api_v1_pb
 from config import Config
 from .auth import auth_pb
-from .extensions import db, migrate, guard, cors
+from .extensions import db, migrate, guard, cors, mail
 from .models.user import User, TrustLevel, Role
 from .models.tree import HealthStatus
 
@@ -27,6 +27,7 @@ def create_app(config_class=Config):
 
 
 def register_extensions(app):
+    mail.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     guard.init_app(app, User)

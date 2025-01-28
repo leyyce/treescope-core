@@ -1,9 +1,8 @@
 from flask import request
 from flask_restx import Resource
-from flask_praetorian import auth_required, roles_required
+from flask_praetorian import auth_required, current_user
 
 from app.extensions import guard
-from app.auth.utils import get_user_from_token
 from .utils import TreeUpdateSchema, TreeSchema, MeasurementSchema, photo_upload_parser
 
 from .service import TreeService
@@ -31,8 +30,7 @@ class CreateTree(Resource):
     @auth_required
     def post(self):
         """Create a Tree with measurements and photos"""
-        token = guard.read_token_from_header()
-        user = get_user_from_token(token)
+        user = current_user()
         if not user:
             return "User not logged in or user that is logged in doesn't exist anymore", 401 
 
@@ -73,8 +71,7 @@ class UserTreeList(Resource):
     @auth_required
     def get(self):
         """Lists all trees with the user id."""
-        token = guard.read_token_from_header()
-        user = get_user_from_token(token)
+        user = current_user()
         if not user:
             return "User not logged in or user that is logged in doesn't exist anymore", 401 
 
@@ -96,8 +93,7 @@ class UserTreeList(Resource):
     @auth_required
     def get(self):
         """Lists all trees with the user id and the measurements."""
-        token = guard.read_token_from_header()
-        user = get_user_from_token(token)
+        user = current_user()
         if not user:
             return "User not logged in or user that is logged in doesn't exist anymore", 401 
 
@@ -137,8 +133,7 @@ class Tree(Resource):
         """update tree data"""
         tree_data = request.get_json()
 
-        token = guard.read_token_from_header()
-        user = get_user_from_token(token)
+        user = current_user()
         if not user:
             return "User not logged in or user that is logged in doesn't exist anymore", 401 
 
