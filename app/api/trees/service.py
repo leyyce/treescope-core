@@ -40,14 +40,15 @@ class TreeService:
         files = data["files"]
         if files is not None:
             for file_data in files:
-
-                if file_data.get("photo_data") == '':
+                photo_data = file_data.get("photo_data")
+                original_filename = file_data.get("filename")
+                if photo_data == '':
                     message = message + "photo_data failed,"
                     continue
 
-                if allowed_file(file_data.get("filename")):
-                    filename = generate_hashed_filename(file_data.get("filename"), user_id, new_tree.id)
-                    file_path = save_base64_image(file_data.get("photo_data"), filename)
+                if allowed_file(original_filename):
+                    filename = generate_hashed_filename(photo_data, original_filename)
+                    file_path = save_base64_image(photo_data, filename)
                     if file_path is None:
                         message = message + f'photodata {file_data.get("filename")} failed,'
                         continue

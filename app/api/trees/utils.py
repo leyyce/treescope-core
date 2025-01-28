@@ -33,16 +33,16 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def generate_hashed_filename(filename, userid, treeid):
+def generate_hashed_filename(filedata, filename):
     # Sicheren Dateinamen generieren (entfernt Sonderzeichen und unsichere Zeichen)
     secure_name = secure_filename(filename)
-    
+
     # Dateiendung extrahieren
     ext = os.path.splitext(secure_name)[1]
-    
+
     # String erstellen, zum hashen
-    hash_input = f"{secure_name}_{userid}_{treeid}"
-    
+    hash_input = f"{filedata}{ext}"
+
     # Hash erzeugen (SHA-256)
     hash_object = hashlib.sha256(hash_input.encode())
     hashed_name = hash_object.hexdigest()
