@@ -56,7 +56,7 @@ class TreeService:
                     tree_id=new_tree.id,
                     measurement_id=new_measurement.id,
                     user_id=user_id,
-                    photo_path=file_path,
+                    photo_path=filename,
                     description=file_data.get('description'))
 
                     db.session.add(new_photo)

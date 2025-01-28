@@ -11,6 +11,8 @@ services:
       - FLASK_ENV=development
       - DATABASE_URI=postgresql://postgres:postgres@treescope-core-db:5432/treescope
       # - SECRET_KEY=<THE SECRET KEY>
+    volumes:
+      - user_uploads:/usr/src/treescope_core/app/static/uploads
     depends_on:
       - treescope-core-db
   treescope-core-db:
@@ -23,11 +25,12 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=treescope
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
   mailer:
     container_name: treescope-core-mailer
     image: maildev/maildev
     ports:
       - "1080:1080"
 volumes:
-  pgdata: {}
+  pg_data: {}
+  user_uploads: {}
