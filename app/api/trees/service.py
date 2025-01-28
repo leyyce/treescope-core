@@ -126,11 +126,11 @@ class TreeService:
             return f"Tree with ID {tree_id} does not exist", 404
         
         ## Optional values
-        tree.treetype = tree_data.get('tree_type', tree.latitude)
+        tree.tree_type = tree_data.get('tree_type', tree.tree_type)
         health_status = tree_data.get('health_status')
         if(health_status):
             health_status = HealthStatus.query.filter_by(status=health_status).first()
-            tree.healthstatus = health_status.id
+            tree.health_status = health_status.id
         tree.latitude = tree_data.get('latitude', tree.latitude)
         tree.longitude = tree_data.get('longitude', tree.latitude)
         db.session.commit()
