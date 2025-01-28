@@ -55,7 +55,7 @@ class TreeList(Resource):
         """get a paginated list of all trees"""
         return TreeService.get_trees()
 
-@ns.route('/usertree')
+@ns.route('/user-tree')
 class UserTreeList(Resource):
     @ns.doc(
         'List of all registered trees from one user w/o measurement',
@@ -77,7 +77,7 @@ class UserTreeList(Resource):
         return TreeService.get_trees(user.id)
 
 
-@ns.route('/usertree_wm')
+@ns.route('/user-tree-wm')
 class UserTreeList(Resource):
     @ns.doc(
         'List of all registered trees from one user with measurements',
