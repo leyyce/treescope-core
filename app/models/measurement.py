@@ -1,20 +1,19 @@
 
 from app.extensions import db
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DECIMAL, DateTime, CheckConstraint, event, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Integer, Float, ForeignKey, DECIMAL, DateTime, CheckConstraint, event, func
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class Measurement(db.Model):
-    __tablename__ = 'measurements'
-
     id: Mapped[int] = mapped_column(primary_key=True)
-    tree_id: Mapped[int] = mapped_column(ForeignKey('trees.id'), nullable=False)
+    tree_id: Mapped[int] = mapped_column(ForeignKey('tree.id'), nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
-    suspected_tree_type: Mapped[str] = mapped_column(String(128), nullable=True)
+    suspected_tree_type: Mapped[str] = mapped_column(nullable=True)
     height: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
     inclination: Mapped[int] = mapped_column(Integer, nullable=False)
     trunk_diameter: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
-    notes: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+    notes: Mapped[str] = mapped_column(nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     tree: Mapped['Tree'] = db.relationship(back_populates='measurements')
 
     __table_args__ = (
@@ -28,6 +27,6 @@ class Measurement(db.Model):
 
 # Event listener to set createdat before insert
 @event.listens_for(Measurement, 'before_insert')
-def set_createdat(mapper, connection, target):
+def set_created_at(mapper, connection, target):
     if target.created_at is None:
         target.created_at = func.now()

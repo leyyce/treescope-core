@@ -1,9 +1,8 @@
 from flask import request
 from flask_restx import Resource
-from flask_praetorian import auth_required, current_user
+from flask_praetorian import auth_required, current_user, auth_accepted, roles_required
 
-from app.extensions import guard
-from .utils import TreeUpdateSchema, TreeSchema, MeasurementSchema, photo_upload_parser
+from .utils import TreeUpdateSchema, TreeSchema, MeasurementSchema
 
 from .service import TreeService
 from .dto import TreeDto
@@ -15,31 +14,31 @@ tree_update_schema = TreeUpdateSchema()
 tree_schema = TreeSchema()
 measurement_schema = MeasurementSchema()
 
-@ns.route('/createtree')
+@ns.route('/create-tree')
 class CreateTree(Resource):
     @ns.doc(
         'Tree and measurement creation',
         responses={
             201: 'Tree created',
-            401: 'Unauthorized'
+            400: 'Malformed data or validations failed.',
         },
         security='jwt_header',
     )
     @ns.expect(TreeDto.tree_create)
     #@ns.expect(photo_upload_parser) funktioniert nicht
-    @auth_required
+    @auth_accepted
     def post(self):
         """Create a Tree with measurements and photos"""
-        user = current_user()
-        if not user:
-            return "User not logged in or user that is logged in doesn't exist anymore", 401 
-
         data = request.get_json()
+        user_id = None
+        try:
+            user = current_user()
+            user_id = user.id
+        finally:
+            if errors := tree_schema.validate(data):
+                return errors, 400
+            return TreeService.create_tree(data, user_id)
 
-        if errors := tree_schema.validate(data):
-            return errors, 400
-
-        return TreeService.create_tree(data, user.id)
 
 
 @ns.route('/')
@@ -109,7 +108,6 @@ class Tree(Resource):
             200: ('tree successfully send', TreeDto.tree_wm),
             404: 'Tree not found!',
         },
-        security='jwt_header',
     )
     @ns.marshal_with(TreeDto.tree_wm)
     def get(self, id):
@@ -128,25 +126,15 @@ class Tree(Resource):
     )
     @ns.expect(TreeDto.tree_update)
     @ns.marshal_with(TreeDto.tree)
-    @auth_required
+    @roles_required('Admin')
     def patch(self, id):
         """update tree data"""
         tree_data = request.get_json()
 
-        user = current_user()
-        if not user:
-            return "User not logged in or user that is logged in doesn't exist anymore", 401 
+        if errors := tree_update_schema.validate(tree_data):
+            ns.abort(400, errors)
 
-        tree, code = TreeService.get_tree_by_id(id)
-        if code == 404:
-            return 'Tree not found', 404
-        
-        if 'Admin' in user.rolenames or user.id == tree.initial_creator_id:
-            if errors := tree_update_schema.validate(tree_data):
-                return errors, 400
-            return TreeService.update_tree(tree_data, id)
-        
-        return 'Access denied, unauthorized user', 401
-        
-                
-        
+        message, code =  TreeService.update_tree(tree_data, id)
+        if code != 200:
+            ns.abort(code, message)
+        return message, code

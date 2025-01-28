@@ -5,7 +5,8 @@ from config import Config
 from .auth import auth_pb
 from .extensions import db, migrate, guard, cors, mail
 from .models.user import User, TrustLevel, Role
-from .models.tree import HealthStatus
+from .models.tree import Tree, HealthStatus, TreePhoto
+from .models.measurement import Measurement
 
 
 def create_app(config_class=Config):

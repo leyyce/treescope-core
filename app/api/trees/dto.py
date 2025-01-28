@@ -17,14 +17,14 @@ class TreeDto:
         'tree_id': fields.Integer(required=True, description='Related tree ID'),
         'measurement_id': fields.Integer(required=True, description='Related measurement ID'),
         'user_id': fields.Integer(required=False, description='Related user ID'),
-        'photopath': fields.String(required=True, description='Path to the photo'),
+        'photo_path': fields.String(required=True, description='Path to the photo'),
         'description': fields.String(required=False, description='Photo description'),
         'created_at': fields.DateTime(readonly=True, description='Photo upload date'),
     })
 
-    tree_photo_create = ns.model('tree_photo', {
+    tree_photo_create = ns.model('tree_photo_upload', {
         'filename': fields.String(required=False, description='filename'),
-        'photo_data': fields.String(required=False, description='uploadedphoto'),
+        'photo_data': fields.String(required=False, description='Base64 encoded photo data'),
         'description': fields.String(required=False, description='Photo description'),
     })
 
@@ -48,12 +48,11 @@ class TreeDto:
 
     tree_create = ns.model('tree', {
         'tree_type': fields.String(required=False, desScription='Type of tree'),
-        'latitude': fields.Float(required=False, description='Tree latitude'),
-        'longitude': fields.Float(required=False, description='Tree longitude'),
+        'latitude': fields.Float(required=True, description='Tree latitude'),
+        'longitude': fields.Float(required=True, description='Tree longitude'),
         'health_status': fields.Integer(required=False, description='Tree health status'),
-        'measurements': fields.List(fields.Nested(MeasurementDto.create_measurement), required=False),
-        'files': fields.List(fields.Nested(tree_photo_create), required=False),
-
+        'measurement': fields.Nested(MeasurementDto.create_measurement, required=True),
+        'files': fields.List(fields.Nested(tree_photo_create), required=True),
     })
 
     tree_wm = ns.model('tree_wm', {

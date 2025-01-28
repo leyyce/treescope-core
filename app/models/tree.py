@@ -1,20 +1,21 @@
+from decimal import Decimal
+
 from app.extensions import db
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DECIMAL, DateTime, CheckConstraint, event, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import Float, ForeignKey, DECIMAL, DateTime, CheckConstraint, event, func
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 class Tree(db.Model):
-    __tablename__ = 'trees'
-
     id: Mapped[int] = mapped_column(primary_key=True)
-    initial_creator_id: Mapped[int] = mapped_column(ForeignKey('user.id'))
-    tree_type: Mapped[str] = mapped_column(String(128), nullable=True)
-    latitude: Mapped[Float] = mapped_column(DECIMAL(8, 6), nullable=False)
-    longitude: Mapped[Float] = mapped_column(DECIMAL(9, 6), nullable=False)
+    initial_creator_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
+    tree_type: Mapped[str] = mapped_column(nullable=True)
+    latitude: Mapped[Decimal] = mapped_column(DECIMAL(8, 6), nullable=False)
+    longitude: Mapped[Decimal] = mapped_column(DECIMAL(9, 6), nullable=False)
     co2_stored: Mapped[Float] = mapped_column(DECIMAL(10, 2), default=0.00, nullable=False)
-    health_status: Mapped[int] = mapped_column(ForeignKey('healthstatuses.id'), default=1, nullable=False)
+    health_status: Mapped[int] = mapped_column(ForeignKey('health_status.id'), default=1, nullable=False)
     environmental_impact: Mapped[Float] = mapped_column(DECIMAL(10, 2), default=0.00, nullable=False)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     measurements: Mapped[list['Measurement']] = db.relationship(back_populates='tree', lazy=True)
     health_status_info: Mapped['HealthStatus'] = db.relationship(back_populates='tree', lazy=True)
@@ -45,35 +46,30 @@ def set_updated_at(mapper, connection, target):
 
 
 class HealthStatus(db.Model):
-    __tablename__ = 'healthstatuses'
-
     id: Mapped[int] = mapped_column( primary_key=True)
-    status: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
-    description: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(nullable=False, unique=True)
+    description: Mapped[str] = mapped_column(nullable=False)
     tree: Mapped['Tree'] = db.relationship(back_populates='health_status_info')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-
 class TreePhoto(db.Model):
-    __tablename__ = 'treephotos'
     id: Mapped[int] = mapped_column(primary_key=True)
-    tree_id: Mapped[int] = mapped_column(ForeignKey('trees.id'), nullable=False)
-    measurement_id: Mapped[int] = mapped_column(ForeignKey('measurements.id'), nullable=False)
+    tree_id: Mapped[int] = mapped_column(ForeignKey('tree.id'), nullable=False)
+    measurement_id: Mapped[int] = mapped_column(ForeignKey('measurement.id'), nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
-    photopath: Mapped[str] = mapped_column(String(512), nullable=False)
-    description: Mapped[str] = mapped_column(Text, nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
+    photo_path: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str] = mapped_column(nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     
     tree: Mapped['Tree'] = db.relationship(back_populates='files')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-# Event listener to set createdat before insert
+# Event listener to set created_at before insert
 @event.listens_for(TreePhoto, 'before_insert')
-def set_createdat(mapper, connection, target):
+def set_created_at(mapper, connection, target):
     if target.created_at is None:
         target.created_at = func.now()
-    

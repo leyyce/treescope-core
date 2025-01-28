@@ -26,25 +26,19 @@ class TreeService:
         message = "Added : Tree Data successfully,"
 
 
-        measurements_data = data.get("measurements", [])  # Liste von Messungen
-        if measurements_data == []:
-            message = message + "measurements failed,"
-        new_measurements = []
+        measurement_data = data["measurement"]  # Liste von Messungen
 
-        for measurement_data in measurements_data:
-
-            measurement_data["tree_id"] = new_tree.id  
-            measurement_data["user_id"] = user_id
+        measurement_data["tree_id"] = new_tree.id
+        measurement_data["user_id"] = user_id
             
-            # Erstelle eine neue Measurement-Instanz
-            new_measurement = Measurement(**measurement_data)
-            new_measurements.append(new_measurement)
-            db.session.add(new_measurement)
-            db.session.commit()
-            message = message + "measurement successfully,"
+        # Erstelle eine neue Measurement-Instanz
+        new_measurement = Measurement(**measurement_data)
+        db.session.add(new_measurement)
+        db.session.commit()
+        message = message + "measurement successfully,"
         
-        files = data.get("files")
-        if files != None:
+        files = data["files"]
+        if files is not None:
             for file_data in files:
 
                 if file_data.get("photo_data") == '':
@@ -54,7 +48,7 @@ class TreeService:
                 if allowed_file(file_data.get("filename")):
                     filename = generate_hashed_filename(file_data.get("filename"), user_id, new_tree.id)
                     file_path = save_base64_image(file_data.get("photo_data"), filename)
-                    if(file_path == None):
+                    if file_path is None:
                         message = message + f'photodata {file_data.get("filename")} failed,'
                         continue
 
@@ -62,7 +56,7 @@ class TreeService:
                     tree_id=new_tree.id,
                     measurement_id=new_measurement.id,
                     user_id=user_id,
-                    photopath=file_path,
+                    photo_path=file_path,
                     description=file_data.get('description'))
 
                     db.session.add(new_photo)
@@ -128,7 +122,7 @@ class TreeService:
         ## Optional values
         tree.tree_type = tree_data.get('tree_type', tree.tree_type)
         health_status = tree_data.get('health_status')
-        if(health_status):
+        if health_status:
             health_status = HealthStatus.query.filter_by(status=health_status).first()
             tree.health_status = health_status.id
         tree.latitude = tree_data.get('latitude', tree.latitude)

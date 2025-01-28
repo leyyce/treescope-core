@@ -2,7 +2,7 @@ import os
 import base64
 import hashlib
 from marshmallow.validate import Length, Regexp, OneOf
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, validates_schema
 from marshmallow.fields import Nested
 from app.auth.utils import validate_decimal_precision
 from decimal import Decimal
@@ -91,8 +91,8 @@ def encode_image_to_base64(file_path):
 
 
 class TreePhotoSchema(Schema):
-    filename = fields.String(required=False)
-    photo_data = fields.String(required=False)
+    filename = fields.String(required=True)
+    photo_data = fields.String(required=True)
     description = fields.String(required=False, validate=Length(max=256))
    
 class MeasurementSchema(Schema):
@@ -143,8 +143,8 @@ class TreeSchema(Schema):
         ],
     )
     health_status = fields.Integer(required=False, default=1)
-    measurements = fields.List(Nested(MeasurementSchema), required=False)
-    files = fields.List(Nested(TreePhotoSchema), required=False)
+    measurement = fields.Nested(MeasurementSchema, required=True)
+    files = fields.List(Nested(TreePhotoSchema), required=True)
 
 class TreeUpdateSchema(Schema):
     """  [PATCH]
