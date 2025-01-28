@@ -5,6 +5,7 @@ from config import Config
 from .auth import auth_pb
 from .extensions import db, migrate, guard, cors, mail
 from .models.user import User, TrustLevel, Role
+from .models.tree import HealthStatus
 
 
 def create_app(config_class=Config):
@@ -49,4 +50,15 @@ def populate_db(app):
         if TrustLevel.query.filter_by(name='Trusted').first() is None:
             trusted_level = TrustLevel(name='Trusted', description='Trusted users')
             db.session.add(trusted_level)
+
+        if HealthStatus.query.filter_by(status='Unknown').first() is None:
+            h_status = HealthStatus(status='Unknown', description='Unknown health status')
+            db.session.add(h_status)
+        if HealthStatus.query.filter_by(status='Healthy').first() is None:
+            h_status = HealthStatus(status='Healthy', description='Tree is healthy')
+            db.session.add(h_status)
+        if HealthStatus.query.filter_by(status='Unhealthy').first() is None:
+            h_status = HealthStatus(status='Unhealthy', description='Tree is unhealthy')
+            db.session.add(h_status)
+
         db.session.commit()

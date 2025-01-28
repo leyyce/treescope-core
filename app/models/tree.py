@@ -14,7 +14,7 @@ class Tree(db.Model):
     health_status: Mapped[int] = mapped_column(ForeignKey('healthstatuses.id'), default=1, nullable=False)
     environmental_impact: Mapped[Float] = mapped_column(DECIMAL(10, 2), default=0.00, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
-    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=func.now(), nullable=False)
 
     measurements: Mapped[list['Measurement']] = db.relationship(back_populates='tree', lazy=True)
     health_status_info: Mapped['HealthStatus'] = db.relationship(back_populates='tree', lazy=True)
@@ -36,6 +36,12 @@ def set_created_at(mapper, connection, target):
         target.created_at = func.now()
     if target.updated_at is None:
         target.updated_at = func.now()
+
+# Event listener to set updated_at before update
+@event.listens_for(Tree, 'before_update')
+def set_updated_at(mapper, connection, target):
+    target.updated_at = func.now()
+
 
 
 class HealthStatus(db.Model):

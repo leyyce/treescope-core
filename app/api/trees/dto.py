@@ -19,7 +19,7 @@ class TreeDto:
         'user_id': fields.Integer(required=False, description='Related user ID'),
         'photopath': fields.String(required=True, description='Path to the photo'),
         'description': fields.String(required=False, description='Photo description'),
-        'uploaded_at': fields.DateTime(readonly=True, description='Photo upload date'),
+        'created_at': fields.DateTime(readonly=True, description='Photo upload date'),
     })
 
     tree_photo_create = ns.model('tree_photo', {
@@ -37,7 +37,7 @@ class TreeDto:
         'co2_stored': fields.Float(default=0.00, description='CO2 stored by the tree in kg'),
         'health_status': fields.Integer(description='Tree health status'),
         'environmental_impact': fields.Float(default=0.00, description='Environmental impact score'),
-        'create_dat': fields.DateTime(readonly=True, description='Tree creation date'),
+        'created_at': fields.DateTime(readonly=True, description='Tree creation date'),
         'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
 
         

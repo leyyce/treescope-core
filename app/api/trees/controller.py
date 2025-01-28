@@ -15,7 +15,7 @@ tree_update_schema = TreeUpdateSchema()
 tree_schema = TreeSchema()
 measurement_schema = MeasurementSchema()
 
-@ns.route('/')
+@ns.route('/createtree')
 class CreateTree(Resource):
     @ns.doc(
         'Tree and measurement creation',
@@ -137,7 +137,11 @@ class Tree(Resource):
         if not user:
             return "User not logged in or user that is logged in doesn't exist anymore", 401 
 
-        if 'Admin' in user.rolenames or user.id == id:
+        tree, code = TreeService.get_tree_by_id(id)
+        if code == 404:
+            return 'Tree not found', 404
+        
+        if 'Admin' in user.rolenames or user.id == tree.initial_creator_id:
             if errors := tree_update_schema.validate(tree_data):
                 return errors, 400
             return TreeService.update_tree(tree_data, id)
