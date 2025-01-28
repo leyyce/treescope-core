@@ -99,3 +99,12 @@ class RegisterSchema(Schema):
             raise ValidationError('Provided latitude without longitude.')
         if 'longitude' in data and 'latitude' not in data:
             raise ValidationError('Provided longitude without latitude.')
+
+class RequestValidationMailSchema(Schema):
+    """ /auth/request-validation [POST]
+
+    Parameters:
+    - Email
+    """
+
+    email = fields.Email(required=True, validate=[Length(max=64)])

@@ -13,13 +13,13 @@ class AuthService:
 
         try:
             user = guard.authenticate(username, password)
-
-            resp = {
-                'access_token': guard.encode_jwt_token(user),
-                'user': user,
-            }
-
-            return resp, 200
+            if user.is_valid():
+                resp = {
+                    'access_token': guard.encode_jwt_token(user),
+                    'user': user,
+                }
+                return resp, 200
+            return "Email address not verified.", 403
         except AuthenticationError as e:
             return e.message, 401
 
@@ -64,12 +64,21 @@ class AuthService:
 
         guard.send_registration_email(email, user=new_user)
 
-        # Create an access token
-        access_token = guard.encode_jwt_token(new_user)
+        return new_user, 201
 
-        resp = {
-            'access_token': access_token,
-            'user': new_user,
+    @staticmethod
+    def send_validation_mail(data):
+        success_response = {
+            'message': 'If a user with the given mail address exists, a verification mail will be send shortly.'
         }
 
-        return resp, 201
+        email = data['email']
+
+        user = User.query.filter_by(email=email).first()
+
+        if user is None:
+            return success_response, 200
+        if user.is_valid():
+            return 'Mail address was already verified.', 403
+        guard.send_registration_email(email, user=user)
+        return success_response, 200

@@ -63,6 +63,8 @@ class User(db.Model, SQLAlchemyUserMixin):
     def password(self, value):
         self.hashed_password = guard.hash_password(value)
 
+    def is_valid(self):
+        return self.verified
 
 # Event listener to set created_at and updated_at before insert
 @event.listens_for(User, 'before_insert')

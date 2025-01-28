@@ -29,6 +29,13 @@ class AuthDto:
         },
     )
 
+    auth_request_mail = ns.model(
+        'Request mail data',
+        {
+            'email': fields.String(required=True),
+        }
+    )
+
     auth_success = ns.model(
         'Auth success response',
         {
