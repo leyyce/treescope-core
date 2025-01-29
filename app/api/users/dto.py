@@ -30,8 +30,8 @@ class UserDto:
         'username': fields.String(required=True, description='username'),
         'first_name': fields.String(required=False, description='first name'),
         'last_name': fields.String(required=False, description='last name'),
-        'latitude': fields.Float(required=False, description='user latitude'),
-        'longitude': fields.Float(required=False, description='user longitude'),
+        'latitude': fields.String(required=False, description='user latitude'),
+        'longitude': fields.String(required=False, description='user longitude'),
     })
 
     user_page = ns.clone('user_page', pagination_base, {
