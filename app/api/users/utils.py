@@ -13,4 +13,5 @@ pagination_parser.add_argument(
 )
 
 class UpdateSchema(RegisterSchema):
-    password = fields.Str(required=False, validate=[Length(min=8, max=128)])
+    class Meta:
+        exclude = ('email', 'password')

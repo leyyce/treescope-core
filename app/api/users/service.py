@@ -29,29 +29,19 @@ class UserService:
         if not User:
             return f"User with ID {id} does not exist", 404
 
-        ## Required values
-        email = data['email']
         username = data['username']
-
-        # Check if the email is taken
-        if user.email != email and User.query.filter_by(email=email).first() is not None:
-            return 'Email is already being used.', 403
 
         # Check if the username is taken
         if user.username != username and User.query.filter_by(username=username).first() is not None:
             return 'Username is already taken.', 403
 
         ## Optional values
-        password = data.get('password')
         first_name = data.get('first_name')
         last_name = data.get('last_name')
         latitude = data.get('latitude')
         longitude = data.get('longitude')
 
-        user.email = email
         user.username = username
-        if password:
-            user.password = password
         user.first_name = first_name
         user.last_name = last_name
         user.latitude = latitude

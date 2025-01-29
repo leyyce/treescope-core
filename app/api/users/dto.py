@@ -27,9 +27,7 @@ class UserDto:
     })
 
     user_update = ns.model('user_update', {
-        'email': fields.String(required=True, description='user email address'),
         'username': fields.String(required=True, description='username'),
-        'password': fields.String(required=False, description='password'),
         'first_name': fields.String(required=False, description='first name'),
         'last_name': fields.String(required=False, description='last name'),
         'latitude': fields.Float(required=False, description='user latitude'),

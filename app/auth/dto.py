@@ -29,10 +29,18 @@ class AuthDto:
         },
     )
 
-    auth_request_mail = ns.model(
-        'Request mail data',
+    auth_mail = ns.model(
+        'Mail data',
         {
             'email': fields.String(required=True),
+        }
+    )
+
+    auth_mail_change = ns.clone(
+        "Mail change data",
+        auth_mail,
+        {
+            'password': fields.String(required=True),
         }
     )
 

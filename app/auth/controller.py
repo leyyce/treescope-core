@@ -1,15 +1,18 @@
 from flask import request, render_template, make_response
-from flask_praetorian.exceptions import PraetorianError
+from flask_praetorian import auth_required
+from flask_praetorian.constants import AccessType
+from flask_praetorian.exceptions import PraetorianError, MissingClaimError
 from flask_restx import Resource
 from .dto import AuthDto
-from .utils import LoginSchema, RegisterSchema, finalization_parser, RequestValidationMailSchema
+from .utils import LoginSchema, RegisterSchema, finalization_parser, MailSchema, MailChangeSchema, mail_change_parser
 from .service import AuthService
 from ..api.users.dto import UserDto
 from app.extensions import db, guard
 
 login_schema = LoginSchema()
 register_schema = RegisterSchema()
-validation_mail_schema = RequestValidationMailSchema()
+mail_schema = MailSchema()
+mail_change_schema = MailChangeSchema()
 
 ns = AuthDto.ns
 user_ns = UserDto.ns
@@ -86,24 +89,24 @@ class RequestVerificationMail(Resource):
     User can request retransmission of verification mail
     """
 
-    auth_request_mail = AuthDto.auth_request_mail
+    auth_mail = AuthDto.auth_mail
 
     @ns.doc(
         'Auth request verification mail',
         responses={
-            201: 'Successfully send validation mail if user with mail address exists.',
+            200: 'Successfully send validation mail if user with mail address exists.',
             400: 'Malformed data or validations failed.',
             403: 'Mail already verified.'
         },
     )
-    @ns.expect(auth_request_mail, validate=True)
+    @ns.expect(auth_mail, validate=True)
     def post(self):
         """ Request verification mail """
         # Grab the json data
         request_verification_data = request.get_json()
 
         # Validate data
-        if errors := validation_mail_schema.validate(request_verification_data):
+        if errors := mail_schema.validate(request_verification_data):
             ns.abort(400, errors)
         response, code = AuthService.send_validation_mail(request_verification_data)
         if code != 200:
@@ -117,7 +120,7 @@ class AuthFinalize(Resource):
         """ Finalize user """
         args = finalization_parser.parse_args()
         try:
-            user = guard.get_user_from_registration_token(args.get('token'))
+            user = guard.get_user_from_registration_token(args['token'])
             user.verified = True
             db.session.commit()
             return make_response(render_template("auth/finalize_success.html",
@@ -132,8 +135,73 @@ class AuthFinalize(Resource):
                                                  title="Verification failed - TreeScope"
                                                  )
                                  )
+# TODO: Clean up and make settings available as env vars
+@ns.route('/change-mail')
+class AuthChangeMail(Resource):
+    """ Change email address endpoint
+    User can request to change the email address
+    """
+    auth_mail_change = AuthDto.auth_mail_change
 
-# @ns.errorhandler(PraetorianError)
+    @ns.hide
+    @ns.expect(mail_change_parser)
+    def get(self):
+        """ Finalize mail change """
+        args = mail_change_parser.parse_args()
+        token = args['token']
+        try:
+            user = guard.get_user_from_registration_token(token)
+            data = guard.extract_jwt_token(token, access_type=AccessType.register)
+            MissingClaimError.require_condition(
+                "custom_claims" in data,
+                "Token is missing custom_claims",
+            )
+            custom_claims = data['custom_claims']
+            MissingClaimError.require_condition(
+                "new_mail_address" in custom_claims,
+                "Token is missing new_mail_address custom claim",
+            )
+            new_mail_address = custom_claims['new_mail_address']
+            user.email = new_mail_address
+            db.session.commit()
+            return make_response(render_template("auth/mail_change_success.html",
+                                                 name=user.first_name if user.first_name else user.username,
+                                                 addr=user.email,
+                                                 title="Mail change success - TreeScope"
+                                                 )
+                                 )
+        except PraetorianError as e:
+            return make_response(render_template("auth/mail_change_error.html",
+                                                 error=e.message,
+                                                 title="Mail change failed - TreeScope"
+                                                 )
+                                 )
+
+    @ns.doc(
+        'Auth request email change',
+        responses={
+            200: 'Successfully send mail change verification',
+            400: 'Malformed data or validations failed.',
+            403: 'Mail already in use.'
+        },
+        security='jwt_header',
+    )
+    @ns.expect(auth_mail_change)
+    @auth_required
+    def patch(self):
+        """ Change user email address """
+        mail_data = request.get_json()
+
+        #Validate data
+        if errors := mail_change_schema.validate(mail_data):
+            ns.abort(400, errors)
+        response, code = AuthService.request_mail_change(mail_data)
+        if code != 200:
+            ns.abort(code, response)
+        return response, code
+
+
+@ns.errorhandler(PraetorianError)
 @user_ns.errorhandler(PraetorianError)
 def handle_praetorian_error(error):
     """Return a custom message and status code when the user did not provide a JWT"""

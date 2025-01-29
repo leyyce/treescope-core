@@ -3,9 +3,14 @@ from marshmallow import Schema, fields, ValidationError, validates_schema
 from marshmallow.validate import Regexp, Length
 
 finalization_parser = RequestParser()
-(finalization_parser.add_argument(
+finalization_parser.add_argument(
     "token", type=str, required=True, location='args', help="Registration token"
-))
+)
+
+mail_change_parser = RequestParser()
+mail_change_parser.add_argument(
+    "token", type=str, required=True, location='args', help="Mail change token"
+)
 
 def validate_decimal_precision(value, max_digits, decimal_places):
     value_str = format(value, 'f')  # Convert Decimal to string without scientific notation
@@ -100,11 +105,22 @@ class RegisterSchema(Schema):
         if 'longitude' in data and 'latitude' not in data:
             raise ValidationError('Provided longitude without latitude.')
 
-class RequestValidationMailSchema(Schema):
+class MailSchema(RegisterSchema):
     """ /auth/request-validation [POST]
 
     Parameters:
     - Email
     """
+    class Meta:
+        exclude = ('username', 'password', 'first_name', 'last_name', 'latitude', 'longitude')
 
-    email = fields.Email(required=True, validate=[Length(max=64)])
+class MailChangeSchema(RegisterSchema):
+    """ /auth/change-mail [PATCH]
+
+        Parameters:
+        - Email
+        - Password (Str)
+    """
+
+    class Meta:
+        exclude = ('username', 'first_name', 'last_name', 'latitude', 'longitude')
