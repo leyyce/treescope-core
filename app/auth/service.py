@@ -113,3 +113,17 @@ class AuthService:
         guard.send_token_email(email, template=template, action_sender=guard.confirmation_sender, action_uri='http://treescope.cs.hs-fulda.de/auth/change-mail', subject=guard.confirmation_subject, custom_token=mail_change_token)
 
         return {'message': f'Verification mail to {email} will be send shortly.'}, 200
+
+    @staticmethod
+    def change_password(data):
+        old_password = data['old_password']
+        new_password = data['new_password']
+
+        user = current_user()
+        try:
+            guard.authenticate(user.username, old_password)
+            user.password = new_password
+            db.session.commit()
+            return {'message': 'Password changed successfully.'}, 200
+        except AuthenticationError:
+            return 'Old password is wrong', 401

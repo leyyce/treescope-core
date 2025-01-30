@@ -1,5 +1,7 @@
 import os
 
+import pendulum
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -8,8 +10,8 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'DATABASE_URI', 'postgresql://postgres:postgres@localhost:5432/treescope')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_ACCESS_LIFESPAN = os.environ.get('JWT_ACCESS_LIFESPAN', {"hours": 24})
-    JWT_REFRESH_LIFESPAN = os.environ.get('JWT_REFRESH_LIFESPAN', {"days": 30})
+    JWT_ACCESS_LIFESPAN = os.environ.get('JWT_ACCESS_LIFESPAN', pendulum.duration(hours=24))
+    JWT_REFRESH_LIFESPAN = os.environ.get('JWT_REFRESH_LIFESPAN', pendulum.duration(days=30))
     JWT_PLACES = ['header']
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'mailer')
     MAIL_PORT = os.environ.get('MAIL_PORT', 1025)

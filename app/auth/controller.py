@@ -4,19 +4,24 @@ from flask_praetorian.constants import AccessType
 from flask_praetorian.exceptions import PraetorianError, MissingClaimError
 from flask_restx import Resource
 from .dto import AuthDto
-from .utils import LoginSchema, RegisterSchema, finalization_parser, MailSchema, MailChangeSchema, mail_change_parser
+from .utils import LoginSchema, RegisterSchema, finalization_parser, MailSchema, MailChangeSchema, mail_change_parser, \
+    PasswordChangeSchema
 from .service import AuthService
 from ..api.users.dto import UserDto
+from ..api.trees.dto import TreeDto
+from ..api.measurements.dto import MeasurementDto
 from app.extensions import db, guard
 
 login_schema = LoginSchema()
 register_schema = RegisterSchema()
 mail_schema = MailSchema()
 mail_change_schema = MailChangeSchema()
+password_change_schema = PasswordChangeSchema()
 
 ns = AuthDto.ns
 user_ns = UserDto.ns
-auth_success = AuthDto.auth_success
+tree_ns = TreeDto.ns
+measurement_ns = MeasurementDto.ns
 
 
 @ns.route('/login')
@@ -26,6 +31,7 @@ class AuthLogin(Resource):
     """
 
     auth_login = AuthDto.auth_login
+    auth_success = AuthDto.auth_success
 
     @ns.doc(
         'Auth login',
@@ -200,9 +206,41 @@ class AuthChangeMail(Resource):
             ns.abort(code, response)
         return response, code
 
+@ns.route('/change-password')
+class AuthChangePassword(Resource):
+    """ Change password endpoint
+    User can request to change the email address
+    """
+
+    auth_password_change = AuthDto.auth_password_change
+
+    @ns.doc(
+        'Auth request password change',
+        responses={
+            200: 'Successfully changed account password',
+            400: 'Malformed data or validations failed.',
+            401: 'Old password is incorrect.',
+        },
+        security='jwt_header',
+    )
+    @ns.expect(auth_password_change)
+    @auth_required
+    def patch(self):
+        """ Change user password """
+
+        password_data = request.get_json()
+        if errors := password_change_schema.validate(password_data):
+            ns.abort(400, errors)
+        response, code = AuthService.change_password(password_data)
+        if code != 200:
+            ns.abort(code, response)
+        return response, code
+
 
 @ns.errorhandler(PraetorianError)
 @user_ns.errorhandler(PraetorianError)
+@tree_ns.errorhandler(PraetorianError)
+@measurement_ns.errorhandler(PraetorianError)
 def handle_praetorian_error(error):
     """Return a custom message and status code when the user did not provide a JWT"""
     return PraetorianError.build_error_handler_for_flask_restx()(error)

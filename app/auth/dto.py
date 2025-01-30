@@ -44,6 +44,14 @@ class AuthDto:
         }
     )
 
+    auth_password_change = ns.model(
+        'Password change data',
+        {
+            'old_password': fields.String(required=True),
+            'new_password': fields.String(required=True),
+        }
+    )
+
     auth_success = ns.model(
         'Auth success response',
         {

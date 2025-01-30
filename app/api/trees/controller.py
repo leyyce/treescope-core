@@ -30,14 +30,11 @@ class CreateTree(Resource):
     def post(self):
         """Create a Tree with measurements and photos"""
         data = request.get_json()
-        user_id = None
-        try:
-            user = current_user()
-            user_id = user.id
-        finally:
-            if errors := tree_schema.validate(data):
-                return errors, 400
-            return TreeService.create_tree(data, user_id)
+        user = current_user()
+        user_id = user.id
+        if errors := tree_schema.validate(data):
+            return errors, 400
+        return TreeService.create_tree(data, user_id)
 
 
 

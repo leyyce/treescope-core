@@ -21,6 +21,8 @@ def validate_decimal_precision(value, max_digits, decimal_places):
     if len(fractional_part) > decimal_places:
         raise ValidationError(f"Value {value} exceeds max decimal places ({decimal_places}).")
 
+password_field = fields.Str(required=True, validate=[Length(min=8, max=128)])
+
 class LoginSchema(Schema):
     """ /auth/login [POST]
 
@@ -74,7 +76,7 @@ class RegisterSchema(Schema):
             )
         ]
     )
-    password = fields.Str(required=True, validate=[Length(min=8, max=128)])
+    password = password_field
 
     latitude = fields.Decimal(
         as_string=True,
@@ -124,3 +126,14 @@ class MailChangeSchema(RegisterSchema):
 
     class Meta:
         exclude = ('username', 'first_name', 'last_name', 'latitude', 'longitude')
+
+class PasswordChangeSchema(Schema):
+    """ /auth/change-password [PATCH]
+
+    Parameters:
+    - Old Password (Str)
+    - New Password (Str)
+    """
+
+    old_password = password_field
+    new_password = password_field

@@ -1,5 +1,5 @@
-from app.models.user import User, user_roles
-from app.extensions import db, guard
+from app.models.user import User
+from app.extensions import db
 
 class UserService:
     @staticmethod
@@ -26,7 +26,7 @@ class UserService:
     @staticmethod
     def update_user(id, data):
         user = User.query.get(id)
-        if not User:
+        if not user:
             return f"User with ID {id} does not exist", 404
 
         username = data['username']
