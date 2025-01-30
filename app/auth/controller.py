@@ -1,16 +1,14 @@
-from flask import request, render_template, make_response
+from flask import request
 from flask_praetorian import auth_required
-from flask_praetorian.constants import AccessType
-from flask_praetorian.exceptions import PraetorianError, MissingClaimError
+from flask_praetorian.exceptions import PraetorianError
 from flask_restx import Resource
 from .dto import AuthDto
 from .utils import LoginSchema, RegisterSchema, finalization_parser, MailSchema, MailChangeSchema, mail_change_parser, \
-    PasswordChangeSchema, password_reset_parser, ResetPasswordForm
+    PasswordChangeSchema, password_reset_parser
 from .service import AuthService
 from ..api.users.dto import UserDto
 from ..api.trees.dto import TreeDto
 from ..api.measurements.dto import MeasurementDto
-from app.extensions import db, guard
 
 login_schema = LoginSchema()
 register_schema = RegisterSchema()
@@ -114,7 +112,7 @@ class RequestVerificationMail(Resource):
         # Validate data
         if errors := mail_schema.validate(request_verification_data):
             ns.abort(400, errors)
-        response, code = AuthService.send_validation_mail(request_verification_data)
+        response, code = AuthService.send_verification_mail(request_verification_data)
         if code != 200:
             ns.abort(code, response)
         return response, code
@@ -125,23 +123,9 @@ class AuthFinalize(Resource):
     def get(self):
         """ Finalize user """
         args = finalization_parser.parse_args()
-        try:
-            user = guard.get_user_from_registration_token(args['token'])
-            user.verified = True
-            db.session.commit()
-            return make_response(render_template("auth/finalize_success.html",
-                                                 name = user.first_name if user.first_name else user.username,
-                                                 addr = user.email,
-                                                 title="Verification success - TreeScope"
-                                                 )
-                                 )
-        except PraetorianError as e:
-            return make_response(render_template("auth/finalize_error.html",
-                                                 error=e.message,
-                                                 title="Verification failed - TreeScope"
-                                                 )
-                                 )
-# TODO: Clean up and make settings available as env vars
+        token = args['token']
+        return AuthService.finalize_registration(token)
+
 @ns.route('/change-mail')
 class AuthChangeMail(Resource):
     """ Change email address endpoint
@@ -155,33 +139,7 @@ class AuthChangeMail(Resource):
         """ Finalize mail change """
         args = mail_change_parser.parse_args()
         token = args['token']
-        try:
-            user = guard.get_user_from_registration_token(token)
-            data = guard.extract_jwt_token(token, access_type=AccessType.register)
-            MissingClaimError.require_condition(
-                "custom_claims" in data,
-                "Token is missing custom_claims",
-            )
-            custom_claims = data['custom_claims']
-            MissingClaimError.require_condition(
-                "new_mail_address" in custom_claims,
-                "Token is missing new_mail_address custom claim",
-            )
-            new_mail_address = custom_claims['new_mail_address']
-            user.email = new_mail_address
-            db.session.commit()
-            return make_response(render_template("auth/mail_change_success.html",
-                                                 name=user.first_name if user.first_name else user.username,
-                                                 addr=user.email,
-                                                 title="Mail change success - TreeScope"
-                                                 )
-                                 )
-        except PraetorianError as e:
-            return make_response(render_template("auth/mail_change_error.html",
-                                                 error=e.message,
-                                                 title="Mail change failed - TreeScope"
-                                                 )
-                                 )
+        return AuthService.change_mail(token)
 
     @ns.doc(
         'Auth request email change',
@@ -248,20 +206,7 @@ class AuthResetPassword(Resource):
         """ Finalize mail change """
         args = password_reset_parser.parse_args()
         token = args['token']
-        try:
-            guard.validate_reset_token(token)
-            form = ResetPasswordForm()
-            return make_response(render_template("auth/reset_password.html",
-                                                 title="Reset password - TreeScope",
-                                                 form=form
-                                                 )
-                                 )
-        except PraetorianError as e:
-            return make_response(render_template("auth/reset_password_error.html",
-                                                 error=e.message,
-                                                 title="Password reset failed - TreeScope"
-                                                 )
-                                 )
+        return AuthService.reset_password(token)
 
     @ns.hide
     @ns.expect(password_reset_parser)
@@ -269,29 +214,7 @@ class AuthResetPassword(Resource):
         """ Finalize mail change """
         args = password_reset_parser.parse_args()
         token = args['token']
-        try:
-            user = guard.validate_reset_token(token)
-            form = ResetPasswordForm()
-            if form.validate_on_submit():
-                user.password = form.password.data
-                db.session.commit()
-                return make_response(render_template("auth/reset_password_success.html",
-                                                     name=user.first_name if user.first_name else user.username,
-                                                     addr=user.email,
-                                                     title="Pasword reset success - TreeScope"
-                                                     )
-                                     )
-            return make_response(render_template("auth/reset_password.html",
-                                                 title="Reset password - TreeScope",
-                                                 form=form
-                                                 )
-                                 )
-        except PraetorianError as e:
-            return make_response(render_template("auth/reset_password_error.html",
-                                                 error=e.message,
-                                                 title="Password reset failed - TreeScope"
-                                                 )
-                                 )
+        return AuthService.reset_password(token)
 
     @ns.doc(
         'Auth request password reset',

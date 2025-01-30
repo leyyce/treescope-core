@@ -1,8 +1,10 @@
 import pendulum
-from flask import current_app
+from flask import current_app, make_response, render_template
 from flask_praetorian import current_user
-from flask_praetorian.exceptions import AuthenticationError
+from flask_praetorian.constants import AccessType
+from flask_praetorian.exceptions import AuthenticationError, PraetorianError, MissingClaimError
 
+from app.auth.utils import ResetPasswordForm
 from app.models.user import User
 from app.extensions import db, guard
 
@@ -31,7 +33,7 @@ class AuthService:
         # Assign vars
 
         ## Required values
-        email = data['email']
+        email = data['email'].lower()
         username = data['username']
         password = data['password']
 
@@ -70,12 +72,12 @@ class AuthService:
         return new_user, 201
 
     @staticmethod
-    def send_validation_mail(data):
+    def send_verification_mail(data):
         success_response = {
             'message': 'If a user with the given mail address exists, a verification mail will be send shortly.'
         }
 
-        email = data['email']
+        email = data['email'].lower()
 
         user = User.query.filter_by(email=email).first()
 
@@ -87,8 +89,63 @@ class AuthService:
         return success_response, 200
 
     @staticmethod
+    def finalize_registration(token):
+        try:
+            user = guard.get_user_from_registration_token(token)
+            user.verified = True
+            db.session.commit()
+            return make_response(render_template("auth/finalize_success.html",
+                                                 name = user.first_name if user.first_name else user.username,
+                                                 addr = user.email,
+                                                 title="Verification success - TreeScope"
+                                                 )
+                                 )
+        except PraetorianError as e:
+            return make_response(render_template("auth/finalize_error.html",
+                                                 error=e.message,
+                                                 title="Verification failed - TreeScope"
+                                                 )
+                                 )
+
+    @staticmethod
+    def change_mail(token):
+        try:
+            user = guard.get_user_from_registration_token(token)
+            data = guard.extract_jwt_token(token, access_type=AccessType.register)
+            MissingClaimError.require_condition(
+                "custom_claims" in data,
+                "Token is missing custom_claims",
+            )
+            custom_claims = data['custom_claims']
+            MissingClaimError.require_condition(
+                "new_mail_address" in custom_claims,
+                "Token is missing new_mail_address custom claim",
+            )
+            new_mail_address = custom_claims['new_mail_address'].lower()
+            if User.query.filter_by(email=new_mail_address).first() is not None:
+                return make_response(render_template("auth/mail_change_error.html",
+                                                     error=f'The mail address {new_mail_address} is already in use.',
+                                                     title="Mail change failed - TreeScope"
+                                                     )
+                                     )
+            user.email = new_mail_address
+            db.session.commit()
+            return make_response(render_template("auth/mail_change_success.html",
+                                                 name=user.first_name if user.first_name else user.username,
+                                                 addr=user.email,
+                                                 title="Mail change success - TreeScope"
+                                                 )
+                                 )
+        except PraetorianError as e:
+            return make_response(render_template("auth/mail_change_error.html",
+                                                 error=e.message,
+                                                 title="Mail change failed - TreeScope"
+                                                 )
+                                 )
+
+    @staticmethod
     def request_mail_change(data):
-        email = data['email']
+        email = data['email'].lower()
         password = data['password']
 
         user = current_user()
@@ -108,10 +165,16 @@ class AuthService:
             }
         )
 
-        with open(guard.confirmation_template) as fh:
+        with open('app/templates/mail/mail_change_email.html') as fh:
             template = fh.read()
 
-        guard.send_token_email(email, template=template, action_sender=guard.confirmation_sender, action_uri=current_app.config['TREESCOPE_MAIL_CHANGE_URI'], subject=guard.confirmation_subject, custom_token=mail_change_token)
+        guard.send_token_email(
+            email,
+            template=template,
+            action_sender=current_app.config.get('TREESCOPE_MAIL_CHANGE_SENDER'),
+            action_uri=current_app.config.get('TREESCOPE_MAIL_CHANGE_URI'),
+            subject=current_app.config.get('TREESCOPE_MAIL_CHANGE_SUBJECT'),
+            custom_token=mail_change_token)
 
         return {'message': f'Verification mail to {email} will be send shortly.'}, 200
 
@@ -135,7 +198,7 @@ class AuthService:
             'message': 'If a user with the given mail address exists, a password reset mail will be send shortly.'
         }
 
-        email = data['email']
+        email = data['email'].lower()
         user = User.query.filter_by(email=email).first()
 
         if user is None:
@@ -144,3 +207,29 @@ class AuthService:
             return "Email address not verified. Verify the address first before requesting a password change", 403
         guard.send_reset_email(email, user=user)
         return success_response, 200
+
+    @staticmethod
+    def reset_password(token):
+        try:
+            user = guard.validate_reset_token(token)
+            form = ResetPasswordForm()
+            if form.validate_on_submit():
+                user.password = form.password.data
+                db.session.commit()
+                return make_response(render_template("auth/reset_password_success.html",
+                                                     name=user.first_name if user.first_name else user.username,
+                                                     addr=user.email,
+                                                     title="Pasword reset success - TreeScope"
+                                                     )
+                                     )
+            return make_response(render_template("auth/reset_password.html",
+                                                 title="Reset password - TreeScope",
+                                                 form=form
+                                                 )
+                                 )
+        except PraetorianError as e:
+            return make_response(render_template("auth/reset_password_error.html",
+                                                 error=e.message,
+                                                 title="Password reset failed - TreeScope"
+                                                 )
+                                 )
