@@ -158,7 +158,7 @@ class AuthService:
 
         mail_change_token = guard.encode_jwt_token(
             user,
-            override_access_lifespan=pendulum.duration(minutes=15),
+            override_access_lifespan=current_app.config.get('TREESCOPE_MAIL_CHANGE_LIFESPAN'),
             is_registration_token=True,
             custom_claims={
                 'new_mail_address': email,
