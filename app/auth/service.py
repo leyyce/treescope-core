@@ -1,4 +1,5 @@
 import pendulum
+from flask import current_app
 from flask_praetorian import current_user
 from flask_praetorian.exceptions import AuthenticationError
 
@@ -110,7 +111,7 @@ class AuthService:
         with open(guard.confirmation_template) as fh:
             template = fh.read()
 
-        guard.send_token_email(email, template=template, action_sender=guard.confirmation_sender, action_uri='http://treescope.cs.hs-fulda.de/auth/change-mail', subject=guard.confirmation_subject, custom_token=mail_change_token)
+        guard.send_token_email(email, template=template, action_sender=guard.confirmation_sender, action_uri=current_app.config['TREESCOPE_MAIL_CHANGE_URI'], subject=guard.confirmation_subject, custom_token=mail_change_token)
 
         return {'message': f'Verification mail to {email} will be send shortly.'}, 200
 
@@ -127,3 +128,19 @@ class AuthService:
             return {'message': 'Password changed successfully.'}, 200
         except AuthenticationError:
             return 'Old password is wrong', 401
+
+    @staticmethod
+    def send_reset_mail(data):
+        success_response = {
+            'message': 'If a user with the given mail address exists, a password reset mail will be send shortly.'
+        }
+
+        email = data['email']
+        user = User.query.filter_by(email=email).first()
+
+        if user is None:
+            return success_response, 200
+        if not user.is_valid():
+            return "Email address not verified. Verify the address first before requesting a password change", 403
+        guard.send_reset_email(email, user=user)
+        return success_response, 200

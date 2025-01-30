@@ -5,7 +5,7 @@ from flask_praetorian.exceptions import PraetorianError, MissingClaimError
 from flask_restx import Resource
 from .dto import AuthDto
 from .utils import LoginSchema, RegisterSchema, finalization_parser, MailSchema, MailChangeSchema, mail_change_parser, \
-    PasswordChangeSchema
+    PasswordChangeSchema, password_reset_parser, ResetPasswordForm
 from .service import AuthService
 from ..api.users.dto import UserDto
 from ..api.trees.dto import TreeDto
@@ -17,6 +17,8 @@ register_schema = RegisterSchema()
 mail_schema = MailSchema()
 mail_change_schema = MailChangeSchema()
 password_change_schema = PasswordChangeSchema()
+
+auth_mail = AuthDto.auth_mail
 
 ns = AuthDto.ns
 user_ns = UserDto.ns
@@ -94,8 +96,6 @@ class RequestVerificationMail(Resource):
     """ Request verification mail endpoint
     User can request retransmission of verification mail
     """
-
-    auth_mail = AuthDto.auth_mail
 
     @ns.doc(
         'Auth request verification mail',
@@ -215,7 +215,7 @@ class AuthChangePassword(Resource):
     auth_password_change = AuthDto.auth_password_change
 
     @ns.doc(
-        'Auth request password change',
+        'Auth password change',
         responses={
             200: 'Successfully changed account password',
             400: 'Malformed data or validations failed.',
@@ -232,6 +232,85 @@ class AuthChangePassword(Resource):
         if errors := password_change_schema.validate(password_data):
             ns.abort(400, errors)
         response, code = AuthService.change_password(password_data)
+        if code != 200:
+            ns.abort(code, response)
+        return response, code
+
+@ns.route('/reset-password')
+class AuthResetPassword(Resource):
+    """ Reset password endpoint
+    User can request a password reset mail
+    """
+
+    @ns.hide
+    @ns.expect(password_reset_parser)
+    def get(self):
+        """ Finalize mail change """
+        args = password_reset_parser.parse_args()
+        token = args['token']
+        try:
+            guard.validate_reset_token(token)
+            form = ResetPasswordForm()
+            return make_response(render_template("auth/reset_password.html",
+                                                 title="Reset password - TreeScope",
+                                                 form=form
+                                                 )
+                                 )
+        except PraetorianError as e:
+            return make_response(render_template("auth/reset_password_error.html",
+                                                 error=e.message,
+                                                 title="Password reset failed - TreeScope"
+                                                 )
+                                 )
+
+    @ns.hide
+    @ns.expect(password_reset_parser)
+    def post(self):
+        """ Finalize mail change """
+        args = password_reset_parser.parse_args()
+        token = args['token']
+        try:
+            user = guard.validate_reset_token(token)
+            form = ResetPasswordForm()
+            if form.validate_on_submit():
+                user.password = form.password.data
+                db.session.commit()
+                return make_response(render_template("auth/reset_password_success.html",
+                                                     name=user.first_name if user.first_name else user.username,
+                                                     addr=user.email,
+                                                     title="Pasword reset success - TreeScope"
+                                                     )
+                                     )
+            return make_response(render_template("auth/reset_password.html",
+                                                 title="Reset password - TreeScope",
+                                                 form=form
+                                                 )
+                                 )
+        except PraetorianError as e:
+            return make_response(render_template("auth/reset_password_error.html",
+                                                 error=e.message,
+                                                 title="Password reset failed - TreeScope"
+                                                 )
+                                 )
+
+    @ns.doc(
+        'Auth request password reset',
+        responses={
+            200: 'Successfully send reset mail if user with mail address exists.',
+            400: 'Malformed data or validations failed.',
+            403: 'Email address not verified.',
+        },
+    )
+    @ns.expect(auth_mail, validate=True)
+    def patch(self):
+        """ Request password reset mail """
+
+        mail_data = request.get_json()
+
+        # Validate data
+        if errors := mail_schema.validate(mail_data):
+            ns.abort(400, errors)
+        response, code = AuthService.send_reset_mail(mail_data)
         if code != 200:
             ns.abort(code, response)
         return response, code

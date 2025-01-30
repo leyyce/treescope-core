@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from sqlalchemy import CheckConstraint, DateTime, ForeignKey, DECIMAL, event, func
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.extensions import db, guard
@@ -51,7 +52,7 @@ class User(db.Model, SQLAlchemyUserMixin):
         if default_role:
             self.roles.append(default_role)
 
-    @property
+    @hybrid_property
     def email(self):
         return self._email
 

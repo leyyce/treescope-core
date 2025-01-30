@@ -20,10 +20,6 @@ def create_app(config_class=Config):
     app.register_blueprint(api_v1_pb, url_prefix='/api/v1')
     app.register_blueprint(auth_pb, url_prefix='/auth')
 
-    @app.route('/test/')
-    def test_page():
-        return '<h1>Testing the Flask Application Factory Pattern</h1>'
-
     return app
 
 

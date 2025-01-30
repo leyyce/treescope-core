@@ -1,6 +1,9 @@
 from flask_restx.reqparse import RequestParser
+from flask_wtf import FlaskForm
 from marshmallow import Schema, fields, ValidationError, validates_schema
 from marshmallow.validate import Regexp, Length
+from wtforms.fields.simple import PasswordField, SubmitField
+from wtforms.validators import DataRequired, EqualTo, Regexp as RegexpWTForms, Length as LengthWTForms
 
 finalization_parser = RequestParser()
 finalization_parser.add_argument(
@@ -10,6 +13,11 @@ finalization_parser.add_argument(
 mail_change_parser = RequestParser()
 mail_change_parser.add_argument(
     "token", type=str, required=True, location='args', help="Mail change token"
+)
+
+password_reset_parser = RequestParser()
+password_reset_parser.add_argument(
+    "token", type=str, required=True, location='args', help="Password reset token"
 )
 
 def validate_decimal_precision(value, max_digits, decimal_places):
@@ -137,3 +145,10 @@ class PasswordChangeSchema(Schema):
 
     old_password = password_field
     new_password = password_field
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField("New Password", validators=[DataRequired(), LengthWTForms(min=8, max=128)])
+    password2 = PasswordField(
+        "Repeat Password", validators=[DataRequired(), EqualTo("password")]
+    )
+    submit = SubmitField("Confirm Password Reset")

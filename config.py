@@ -16,4 +16,8 @@ class Config:
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'mailer')
     MAIL_PORT = os.environ.get('MAIL_PORT', 1025)
     PRAETORIAN_CONFIRMATION_SENDER = os.environ.get('PRAETORIAN_CONFIRMATION_SENDER', 'no-reply@treescope.cs.hs-fulda.de')
+    PRAETORIAN_RESET_SENDER = os.environ.get('PRAETORIAN_RESET_SENDER', 'no-reply@treescope.cs.hs-fulda.de')
     PRAETORIAN_CONFIRMATION_URI = os.environ.get('PRAETORIAN_CONFIRMATION_URI', 'http://localhost:5000/auth/finalize')
+    PRAETORIAN_RESET_URI = os.environ.get('PRAETORIAN_RESET_URI', 'http://localhost:5000/auth/reset-password')
+
+    TREESCOPE_MAIL_CHANGE_URI = os.environ.get('TREESCOPE_MAIL_CHANGE_URI', 'http://localhost:5000/auth/change-mail')
