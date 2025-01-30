@@ -30,7 +30,7 @@ class User(db.Model, SQLAlchemyUserMixin):
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     first_name: Mapped[str] = mapped_column(nullable=True)
     last_name: Mapped[str] = mapped_column(nullable=True)
-    email: Mapped[str] = mapped_column(nullable=False, unique=True)
+    _email: Mapped[str] = mapped_column(name='email', nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     verified: Mapped[bool] = mapped_column(default=False, nullable=False)
     trust_level: Mapped[int] = mapped_column(ForeignKey('trust_level.id'), default=1, nullable=False)
@@ -50,6 +50,14 @@ class User(db.Model, SQLAlchemyUserMixin):
         default_role = Role.query.filter_by(name='User').first()
         if default_role:
             self.roles.append(default_role)
+
+    @property
+    def email(self):
+        return self._email
+
+    @email.setter
+    def email(self, value):
+        self._email = value.lower()
 
     @property
     def rolenames(self):
