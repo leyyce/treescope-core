@@ -26,6 +26,20 @@ services:
       - POSTGRES_DB=treescope
     volumes:
       - pg_data:/var/lib/postgresql/data
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - certbot_www:/var/www/certbot
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - certbot_conf:/etc/letsencrypt/
+      - certbot_www:/var/www/certbot/
   mailer:
     container_name: treescope-core-mailer
     image: maildev/maildev
@@ -34,3 +48,5 @@ services:
 volumes:
   pg_data: {}
   user_uploads: {}
+  certbot_www: {}
+  certbot_conf: {}
