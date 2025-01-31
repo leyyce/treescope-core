@@ -12,9 +12,9 @@ services:
       - FLASK_ENV=development
       - DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@treescope-core-db:5432/${POSTGRES_DB}
       - SECRET_KEY=${SECRET_KEY}
-      # - PRAETORIAN_CONFIRMATION_URI=https://${DOMAIN}/auth/finalize
-      # - PRAETORIAN_RESET_URI=https://${DOMAIN}/auth/reset-password
-      # - PRAETORIAN_MAIL_CHANGE_URI=https://${DOMAIN}/auth/reset-password
+      - PRAETORIAN_CONFIRMATION_URI=https://${DOMAIN}/auth/finalize
+      - PRAETORIAN_RESET_URI=https://${DOMAIN}/auth/reset-password
+      - PRAETORIAN_MAIL_CHANGE_URI=https://${DOMAIN}/auth/reset-password
     volumes:
       - user_uploads:/usr/src/treescope_core/app/static/uploads
     depends_on:
@@ -47,7 +47,7 @@ services:
       - ./etc/letsencrypt/nginx/:/etc/letsencrypt/nginx:ro
       - certbot_conf:/etc/letsencrypt/
       - certbot_www:/var/www/certbot
-      - user_uploads:/var/www/static/user_uploads
+      - user_uploads:/var/www/static/uploads
   certbot:
     profiles:
       - certbot

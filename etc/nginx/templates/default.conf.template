@@ -16,14 +16,14 @@ server {
     include /etc/letsencrypt/nginx/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/nginx/ssl-dhparams.pem;
 
-    location ~ /.well-known/acme-challenge {
+    location /.well-known/acme-challenge {
         allow all;
         root /var/www/certbot;
     }
 
-    location ~ /static {
+    location /static {
         allow all;
-        root /var/www/static;
+        root /var/www;
     }
 
     location / {
