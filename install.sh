@@ -3,22 +3,29 @@
 DOMAIN=$1
 EMAIL=$2
 
-echo POSTGRES_DB=treescope > .env
-echo POSTGRES_USER=treescope-user > .env
-echo POSTGRES_PASSWORD=$(openssl rand 60 ; base64 -w 0) >> .env
+echo Creating .env file...
+
+echo POSTGRES_DB=treescope >> .env
+echo POSTGRES_USER=treescope-user >> .env
+echo POSTGRES_PASSWORD=$(openssl rand 60 | base64 -w 0) >> .env
 echo SECRET_KEY=$(openssl rand 60 | base64 -w 0) >> .env
 echo DOMAIN="${DOMAIN}" >> .env
 echo EMAIL="${EMAIL}" >> .env
 
+
 # Phase 1
-docker compose -f ./docker-compose-initiate.yaml up -d nginx
-docker compose -f ./docker-compose-initiate.yaml up certbot
-docker compose -f ./docker-compose-initiate.yaml down
+echo Installing SSL certificates...
+sudo docker compose -f ./docker-compose-initiate.yaml up -d nginx
+sudo docker compose -f ./docker-compose-initiate.yaml up certbot
+sudo docker compose -f ./docker-compose-initiate.yaml down
 
 # some configurations for let's encrypt
+echo Configuring let\'s encrypt...
 curl -L --create-dirs -o etc/letsencrypt/nginx/options-ssl-nginx.conf https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
 openssl dhparam -out etc/letsencrypt/nginx/ssl-dhparams.pem 2048
 
 # Phase 2
-crontab ./etc/crontab
-docker compose -f ./docker-compose.yaml -d up
+echo Installing cron job...
+sudo crontab ./etc/cron/crontab
+echo Starting containers...
+docker compose -f ./docker-compose.yaml up -d

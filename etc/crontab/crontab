@@ -1,2 +1,0 @@
-# m h  dom mon dow   command
-0 5 1 */2 * /home/treescope/treescope-core/etc/crontab/cron_job.sh
