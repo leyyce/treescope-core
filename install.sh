@@ -23,8 +23,8 @@ sudo docker compose -f ./compose-initiate.yaml down
 
 # some configurations for let's encrypt
 echo Configuring let\'s encrypt...
-curl -L --create-dirs -o etc/letsencrypt/options-ssl-nginx.conf https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
-openssl dhparam -out etc/letsencrypt/ssl-dhparams.pem 2048
+sudo curl -L --create-dirs -o ./etc/letsencrypt/options-ssl-nginx.conf https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf
+sudo openssl dhparam -out ./etc/letsencrypt/ssl-dhparams.pem 2048
 
 # Phase 2
 echo Installing cron job...
