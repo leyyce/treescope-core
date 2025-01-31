@@ -7,7 +7,7 @@ services:
     expose:
       - 5000
     environment:
-      - FLASK_RUN_HOST=treescope-core-nginx
+      - FLASK_RUN_HOST=0.0.0.0
       - FLASK_RUN_PORT=5000
       - FLASK_ENV=development
       - DATABASE_URI=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@treescope-core-db:5432/${POSTGRES_DB}
@@ -43,7 +43,7 @@ services:
       - "443:443"
     restart: unless-stopped
     volumes:
-      - ./etc/nginx/templates-initiate:/etc/nginx/templates:ro
+      - ./etc/nginx/templates:/etc/nginx/templates:ro
       - ./etc/letsencrypt/nginx/:/etc/letsencrypt/nginx:ro
       - certbot_conf:/etc/letsencrypt/
       - certbot_www:/var/www/certbot
@@ -55,8 +55,7 @@ services:
     depends_on:
       - nginx
     image: certbot/certbot:latest
-    command:
-      - certonly --reinstall --webroot --webroot-path=/var/www/certbot --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email ${EMAIL} -d ${DOMAIN} --agree-tos --no-eff-email
     volumes:
       - certbot_conf:/etc/letsencrypt/
       - certbot_www:/var/www/certbot/
