@@ -7,8 +7,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./etc/nginx/templates-initiate:/etc/nginx/templates
-      - certbot_conf:/etc/letsencrypt/
+      - ./etc/nginx/templates-initiate:/etc/nginx/templates:ro
+      - ./etc/letsencrypt:/etc/letsencrypt/:ro
       - certbot_www:/var/www/certbot/
   certbot:
     container_name: treescope-core-certbot
