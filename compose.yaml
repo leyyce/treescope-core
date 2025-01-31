@@ -44,8 +44,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./etc/nginx/templates:/etc/nginx/templates:ro
-      - ./etc/letsencrypt/nginx/:/etc/letsencrypt/nginx:ro
-      - certbot_conf:/etc/letsencrypt/
+      - ./etc/letsencrypt:/etc/letsencrypt/:ro
       - certbot_www:/var/www/certbot
       - user_uploads:/var/www/static/uploads
   certbot:
@@ -57,7 +56,7 @@ services:
     image: certbot/certbot:latest
     command: certonly --webroot -w /var/www/certbot --force-renewal --email ${EMAIL} -d ${DOMAIN} --agree-tos --no-eff-email
     volumes:
-      - certbot_conf:/etc/letsencrypt/
+      - ./etc/letsencrypt:/etc/letsencrypt/:rw
       - certbot_www:/var/www/certbot/
   mailer:
     container_name: treescope-core-mailer
@@ -68,4 +67,3 @@ volumes:
   pg_data: {}
   user_uploads: {}
   certbot_www: {}
-  certbot_conf: {}

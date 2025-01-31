@@ -17,10 +17,9 @@ services:
       - nginx
     command: certonly --webroot -w /var/www/certbot --force-renewal --email ${EMAIL} -d ${DOMAIN} --agree-tos --no-eff-email
     volumes:
-      - certbot_conf:/etc/letsencrypt/
+      - ./etc/letsencrypt:/etc/letsencrypt/:rw
       - certbot_www:/var/www/certbot/
 volumes:
   pg_data: {}
   user_uploads: {}
   certbot_www: {}
-  certbot_conf: {}
