@@ -1,0 +1,22 @@
+services:
+  nginx:
+    container_name: treescope-core-nginx
+    image: nginx:latest
+    environment:
+      - DOMAIN
+    ports:
+      - "80:80"
+    volumes:
+      - ./etc/nginx/templates-initiate:/etc/nginx/templates
+      - certbot_conf:/etc/letsencrypt/
+      - certbot_www:/var/www/certbot/
+  certbot:
+    container_name: treescope-core-certbot
+    image: certbot/certbot:latest
+    depends_on:
+      - nginx-init
+    command:
+      - certonly --reinstall --webroot --webroot-path=/var/www/certbot --email ${EMAIL} --agree-tos --no-eff-email -d ${DOMAIN}
+    volumes:
+      - certbot_conf:/etc/letsencrypt/
+      - certbot_www:/var/www/certbot/
