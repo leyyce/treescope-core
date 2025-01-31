@@ -20,3 +20,8 @@ services:
     volumes:
       - certbot_conf:/etc/letsencrypt/
       - certbot_www:/var/www/certbot/
+volumes:
+  pg_data: {}
+  user_uploads: {}
+  certbot_www: {}
+  certbot_conf: {}
