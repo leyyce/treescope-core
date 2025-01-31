@@ -15,9 +15,9 @@ echo EMAIL="${EMAIL}" >> .env
 
 # Phase 1
 echo Installing SSL certificates...
-sudo docker compose -f ./docker-compose-initiate.yaml up -d nginx
-sudo docker compose -f ./docker-compose-initiate.yaml up certbot
-sudo docker compose -f ./docker-compose-initiate.yaml down
+sudo docker compose -f ./compose-initiate.yaml up -d nginx
+sudo docker compose -f ./compose-initiate.yaml up certbot
+sudo docker compose -f ./compose-initiate.yaml down
 
 # some configurations for let's encrypt
 echo Configuring let\'s encrypt...
@@ -28,4 +28,4 @@ openssl dhparam -out etc/letsencrypt/nginx/ssl-dhparams.pem 2048
 echo Installing cron job...
 sudo crontab ./etc/cron/crontab
 echo Starting containers...
-sudo docker compose -f ./docker-compose.yaml up -d
+sudo docker compose -f ./compose.yaml up -d
