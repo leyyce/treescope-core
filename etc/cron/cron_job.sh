@@ -9,5 +9,5 @@ else
 fi
 
 # renew certbot certificate
-docker compose -f /home/treescope/treescope-core/docker-compose.yaml run --rm certbot
-docker compose -f /home/treescope/treescope-core/docker-compose.yaml exec nginx nginx -s reload
+docker compose -f /home/treescope/treescope-core/compose.yaml run --rm certbot
+docker compose -f /home/treescope/treescope-core/compose.yaml exec nginx nginx -s reload
