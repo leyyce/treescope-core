@@ -32,8 +32,8 @@ class TreeDto:
         'id': fields.Integer(readonly=True, description='Tree unique identifier', attribute='id'),
         'initial_creator_id': fields.Integer(required=True, description='Initial creator ID'),
         'tree_type': fields.String(required=False, desScription='Type of tree'),
-        'latitude': fields.Float(required=True, description='Tree latitude'),
-        'longitude': fields.Float(required=True, description='Tree longitude'),
+        'latitude': fields.String(required=True, description='Tree latitude'),
+        'longitude': fields.String(required=True, description='Tree longitude'),
         'co2_stored': fields.Float(default=0.00, description='CO2 stored by the tree in kg'),
         'health_status': fields.Integer(description='Tree health status'),
         'environmental_impact': fields.Float(default=0.00, description='Environmental impact score'),
@@ -48,8 +48,8 @@ class TreeDto:
 
     tree_create = ns.model('tree', {
         'tree_type': fields.String(required=False, desScription='Type of tree'),
-        'latitude': fields.Float(required=True, description='Tree latitude'),
-        'longitude': fields.Float(required=True, description='Tree longitude'),
+        'latitude': fields.String(required=True, description='Tree latitude'),
+        'longitude': fields.String(required=True, description='Tree longitude'),
         'health_status': fields.Integer(required=False, description='Tree health status'),
         'measurement': fields.Nested(MeasurementDto.create_measurement, required=True),
         'files': fields.List(fields.Nested(tree_photo_create), required=True),
@@ -59,8 +59,8 @@ class TreeDto:
         'id': fields.Integer(readonly=True, description='Tree unique identifier'),
         'initial_creator_id': fields.Integer(required=True, description='Initial creator ID'),
         'tree_type': fields.String(required=False, description='Type of tree'),
-        'latitude': fields.Float(required=True, description='Tree latitude'),
-        'longitude': fields.Float(required=True, description='Tree longitude'),
+        'latitude': fields.String(required=True, description='Tree latitude'),
+        'longitude': fields.String(required=True, description='Tree longitude'),
         'co2_stored': fields.Float(default=0.00, description='CO2 stored by the tree in kg'),
         'health_status': fields.Integer(description='Tree health status'),
         'environmental_impact': fields.Float(default=0.00, description='Environmental impact score'),
@@ -74,8 +74,8 @@ class TreeDto:
     tree_update = ns.model('tree_update', {
         'id': fields.Integer(readonly=True, required=True, description='Tree unique identifier'),
         'tree_type': fields.String(required=False, description='Type of tree'),
-        'latitude': fields.Float(required=False, description='Tree latitude'),
-        'longitude': fields.Float(required=False, description='Tree longitude'),
+        'latitude': fields.String(required=False, description='Tree latitude'),
+        'longitude': fields.String(required=False, description='Tree longitude'),
         'health_status': fields.String(required=False, description='Tree health status'),
     })
 
