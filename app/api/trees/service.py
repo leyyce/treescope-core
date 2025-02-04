@@ -1,8 +1,6 @@
-from app.models.tree import Tree, HealthStatus, TreePhoto
-from app.models.measurement import Measurement
+from app.models.tree import Tree, HealthStatus
+from app.api.measurements.service import MeasurementService
 from app.extensions import db, guard
-from .utils import allowed_file, UPLOAD_FOLDER, generate_hashed_filename, save_base64_image
-
 
 
 class TreeService:
@@ -23,48 +21,14 @@ class TreeService:
         new_tree = Tree(**tree_data)
         db.session.add(new_tree)
         db.session.commit()
-        message = "Added : Tree Data successfully,"
-
-
-        measurement_data = data["measurement"]  # Liste von Messungen
-
-        measurement_data["tree_id"] = new_tree.id
-        measurement_data["user_id"] = user_id
-            
-        # Erstelle eine neue Measurement-Instanz
-        new_measurement = Measurement(**measurement_data)
-        db.session.add(new_measurement)
-        db.session.commit()
-        message = message + "measurement successfully,"
         
-        files = data["files"]
-        if files is not None:
-            for file_data in files:
-                photo_data = file_data.get("photo_data")
-                original_filename = file_data.get("filename")
-                if photo_data == '':
-                    message = message + "photo_data failed,"
-                    continue
-
-                if allowed_file(original_filename):
-                    filename = generate_hashed_filename(photo_data, original_filename)
-                    file_path = save_base64_image(photo_data, filename)
-                    if file_path is None:
-                        message = message + f'photodata {file_data.get("filename")} failed,'
-                        continue
-
-                    new_photo = TreePhoto(
-                    tree_id=new_tree.id,
-                    measurement_id=new_measurement.id,
-                    user_id=user_id,
-                    photo_path=filename,
-                    description=file_data.get('description'))
-
-                    db.session.add(new_photo)
-                    db.session.commit()
-                    message = message + "photodata successfully."
-
-        return message, 201
+        message, code, measurement = MeasurementService.create_measurement(data["measurement"], new_tree.id, user_id)
+        if code != 201:
+            return message, code
+        message, code = MeasurementService.create_photo(data["files"], new_tree.id, user_id, measurement.id)
+        if code != 201:
+            return message, code
+        return f"Tree created", 201
 
     @staticmethod
     def get_trees(user_id=None):

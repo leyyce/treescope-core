@@ -1,8 +1,8 @@
 from flask import request
 from flask_restx import Resource
-from flask_praetorian import auth_required, current_user, auth_accepted, roles_required
+from flask_praetorian import auth_required, current_user, auth_accepted, roles_required, PraetorianError
 
-from .utils import TreeUpdateSchema, TreeSchema, MeasurementSchema
+from .utils import TreeUpdateSchema, TreeSchema
 
 from .service import TreeService
 from .dto import TreeDto
@@ -12,7 +12,6 @@ ns = TreeDto.ns
 
 tree_update_schema = TreeUpdateSchema()
 tree_schema = TreeSchema()
-measurement_schema = MeasurementSchema()
 
 @ns.route('/create-tree')
 class CreateTree(Resource):
@@ -30,11 +29,17 @@ class CreateTree(Resource):
     def post(self):
         """Create a Tree with measurements and photos"""
         data = request.get_json()
-        user = current_user()
-        user_id = user.id
+        try:
+            user = current_user()
+            user_id = user.id
+        except PraetorianError as e:
+            user_id = None
         if errors := tree_schema.validate(data):
             return errors, 400
-        return TreeService.create_tree(data, user_id)
+        message, code = TreeService.create_tree(data, user_id)
+        if code != 201:
+            ns.abort(code, message)
+        return message, code
 
 
 

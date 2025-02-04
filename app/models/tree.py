@@ -53,23 +53,3 @@ class HealthStatus(db.Model):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-class TreePhoto(db.Model):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    tree_id: Mapped[int] = mapped_column(ForeignKey('tree.id'), nullable=False)
-    measurement_id: Mapped[int] = mapped_column(ForeignKey('measurement.id'), nullable=False)
-    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
-    photo_path: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=True)
-    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
-    
-    tree: Mapped['Tree'] = db.relationship(back_populates='files')
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-# Event listener to set created_at before insert
-@event.listens_for(TreePhoto, 'before_insert')
-def set_created_at(mapper, connection, target):
-    if target.created_at is None:
-        target.created_at = func.now()
