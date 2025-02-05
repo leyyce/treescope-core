@@ -14,6 +14,8 @@ class Measurement(db.Model):
     trunk_diameter: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
     notes: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    files: Mapped[list['TreePhoto']] = db.relationship(back_populates='measurements', lazy=True)
     tree: Mapped['Tree'] = db.relationship(back_populates='measurements')
 
     __table_args__ = (
@@ -27,6 +29,28 @@ class Measurement(db.Model):
 
 # Event listener to set createdat before insert
 @event.listens_for(Measurement, 'before_insert')
+def set_created_at(mapper, connection, target):
+    if target.created_at is None:
+        target.created_at = func.now()
+
+
+class TreePhoto(db.Model):
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tree_id: Mapped[int] = mapped_column(ForeignKey('tree.id'), nullable=False)
+    measurement_id: Mapped[int] = mapped_column(ForeignKey('measurement.id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
+    photo_path: Mapped[str] = mapped_column(nullable=False)
+    description: Mapped[str] = mapped_column(nullable=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
+    
+    measurements: Mapped['Measurement'] = db.relationship(back_populates='files')
+    tree: Mapped['Tree'] = db.relationship(back_populates='files')
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+# Event listener to set created_at before insert
+@event.listens_for(TreePhoto, 'before_insert')
 def set_created_at(mapper, connection, target):
     if target.created_at is None:
         target.created_at = func.now()

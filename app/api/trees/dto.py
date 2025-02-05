@@ -12,22 +12,6 @@ class TreeDto:
         'description': fields.String(required=True, description='Health status description'),
     })
 
-    tree_photo = ns.model('tree_photo', {
-        'id': fields.Integer(readonly=True, description='Photo unique identifier'),
-        'tree_id': fields.Integer(required=True, description='Related tree ID'),
-        'measurement_id': fields.Integer(required=True, description='Related measurement ID'),
-        'user_id': fields.Integer(required=False, description='Related user ID'),
-        'photo_path': fields.String(required=True, description='Path to the photo'),
-        'description': fields.String(required=False, description='Photo description'),
-        'created_at': fields.DateTime(readonly=True, description='Photo upload date'),
-    })
-
-    tree_photo_create = ns.model('tree_photo_upload', {
-        'filename': fields.String(required=False, description='filename'),
-        'photo_data': fields.String(required=False, description='Base64 encoded photo data'),
-        'description': fields.String(required=False, description='Photo description'),
-    })
-
     tree = ns.model('tree', {
         'id': fields.Integer(readonly=True, description='Tree unique identifier', attribute='id'),
         'initial_creator_id': fields.Integer(required=True, description='Initial creator ID'),
@@ -42,7 +26,7 @@ class TreeDto:
 
         
         'health_status_info': fields.Nested(health_status, description='Tree health statusinfo'),
-        'files': fields.List(fields.Nested(tree_photo), required=False),
+        'files': fields.List(fields.Nested(MeasurementDto.tree_photo), required=False),
 
     })
 
@@ -52,7 +36,7 @@ class TreeDto:
         'longitude': fields.String(required=True, description='Tree longitude'),
         'health_status': fields.Integer(required=False, description='Tree health status'),
         'measurement': fields.Nested(MeasurementDto.create_measurement, required=True),
-        'files': fields.List(fields.Nested(tree_photo_create), required=True),
+        'files': fields.List(fields.Nested(MeasurementDto.tree_photo_create), required=True),
     })
 
     tree_wm = ns.model('tree_wm', {
@@ -68,7 +52,7 @@ class TreeDto:
         'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
         'measurements': fields.List(fields.Nested(MeasurementDto.measurement)),
         'health_status_info': fields.Nested(health_status, description='Tree health statusinfo'),
-        'files': fields.List(fields.Nested(tree_photo), required=False),
+        'files': fields.List(fields.Nested(MeasurementDto.tree_photo), required=False),
     })
 
     tree_update = ns.model('tree_update', {
