@@ -31,6 +31,7 @@ class User(db.Model, SQLAlchemyUserMixin):
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     first_name: Mapped[str] = mapped_column(nullable=True)
     last_name: Mapped[str] = mapped_column(nullable=True)
+    step_length: Mapped[int] = mapped_column(nullable=False)
     _email: Mapped[str] = mapped_column(name='email', nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     verified: Mapped[bool] = mapped_column(default=False, nullable=False)

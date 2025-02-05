@@ -24,6 +24,7 @@ class AuthDto:
             'password': fields.String(required=True),
             'first_name': fields.String(required=False),
             'last_name': fields.String(required=False),
+            'step_length': fields.Integer(required=True),
             'latitude': fields.String(required=False),
             'longitude': fields.String(required=False),
         },

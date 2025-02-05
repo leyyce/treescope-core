@@ -1,7 +1,7 @@
 from flask_restx.reqparse import RequestParser
 from flask_wtf import FlaskForm
 from marshmallow import Schema, fields, ValidationError, validates_schema
-from marshmallow.validate import Regexp, Length
+from marshmallow.validate import Regexp, Length, Range
 from wtforms.fields.simple import PasswordField, SubmitField
 from wtforms.validators import DataRequired, EqualTo, Regexp as RegexpWTForms, Length as LengthWTForms
 
@@ -84,6 +84,9 @@ class RegisterSchema(Schema):
             )
         ]
     )
+
+    step_length = fields.Integer(required=True, validate=[Range(min=60, max=90)])
+
     password = password_field
 
     latitude = fields.Decimal(
@@ -122,7 +125,7 @@ class MailSchema(RegisterSchema):
     - Email
     """
     class Meta:
-        exclude = ('username', 'password', 'first_name', 'last_name', 'latitude', 'longitude')
+        exclude = ('username', 'password', 'first_name', 'last_name', 'step_length', 'latitude', 'longitude')
 
 class MailChangeSchema(RegisterSchema):
     """ /auth/change-mail [PATCH]
@@ -133,7 +136,7 @@ class MailChangeSchema(RegisterSchema):
     """
 
     class Meta:
-        exclude = ('username', 'first_name', 'last_name', 'latitude', 'longitude')
+        exclude = ('username', 'first_name', 'last_name', 'step_length', 'latitude', 'longitude')
 
 class PasswordChangeSchema(Schema):
     """ /auth/change-password [PATCH]

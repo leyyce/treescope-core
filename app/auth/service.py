@@ -36,6 +36,7 @@ class AuthService:
         email = data['email'].lower()
         username = data['username']
         password = data['password']
+        step_length = data['step_length']
 
         # Check if the email is taken
         if User.query.filter_by(email=email).first() is not None:
@@ -57,6 +58,7 @@ class AuthService:
             password=password,
             first_name=first_name,
             last_name=last_name,
+            step_length=step_length,
             longitude=longitude,
             latitude=latitude,
         )

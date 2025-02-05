@@ -17,6 +17,7 @@ class UserDto:
         'username': fields.String(required=True, description='username'),
         'first_name': fields.String(required=False, description='first name'),
         'last_name': fields.String(required=False, description='last name'),
+        'step_length': fields.Integer(required=True, description='step length'),
         'verified': fields.Boolean(readonly=True, required=False, description='user email verified'),
         'trust_level': fields.Integer(readonly=True, required=False, description='user trust level'),
         'roles': fields.List(fields.Nested(role, many=True, skip_none=True), readonly=True, required=False, description='user roles'),
@@ -30,6 +31,7 @@ class UserDto:
         'username': fields.String(required=True, description='username'),
         'first_name': fields.String(required=False, description='first name'),
         'last_name': fields.String(required=False, description='last name'),
+        'step_length': fields.Integer(required=True, description='step length'),
         'latitude': fields.String(required=False, description='user latitude'),
         'longitude': fields.String(required=False, description='user longitude'),
     })

@@ -24,12 +24,13 @@ class UserService:
         return User.query.get(id_)
 
     @staticmethod
-    def update_user(id, data):
-        user = User.query.get(id)
+    def update_user(id_, data):
+        user = User.query.get(id_)
         if not user:
-            return f"User with ID {id} does not exist", 404
+            return f"User with ID {id_} does not exist", 404
 
         username = data['username']
+        step_length = data['step_length']
 
         # Check if the username is taken
         if user.username != username and User.query.filter_by(username=username).first() is not None:
@@ -44,6 +45,7 @@ class UserService:
         user.username = username
         user.first_name = first_name
         user.last_name = last_name
+        user.step_length = step_length
         user.latitude = latitude
         user.longitude = longitude
         db.session.commit()
@@ -54,7 +56,7 @@ class UserService:
     def delete_user(id_):
         user = User.query.get(id_)
         if not user:
-            return f"User with ID {id} does not exist", 404
+            return f"User with ID {id_} does not exist", 404
 
         db.session.delete(user)
         db.session.commit()

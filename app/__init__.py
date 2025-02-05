@@ -10,7 +10,7 @@ from .models.measurement import Measurement
 
 
 def create_app(config_class=Config):
-    app = Flask(__name__, static_folder="static")
+    app = Flask(__name__, static_folder=None)
     app.config.from_object(config_class)
 
     register_extensions(app)
