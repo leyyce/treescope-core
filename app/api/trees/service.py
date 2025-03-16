@@ -64,7 +64,7 @@ class TreeService:
             'has_prev': tree_pagination.has_prev,
             'prev_num': tree_pagination.prev_num,
             'next_num': tree_pagination.next_num,
-            'tree_wm': tree_pagination.items,
+            'trees': tree_pagination.items,
         }
         return resp, 200
 

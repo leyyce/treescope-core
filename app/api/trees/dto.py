@@ -31,6 +31,7 @@ class TreeDto:
         'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
 
         'tree_type': fields.Nested(tree_type, description='Tree type'),
+        'measurements': fields.List(fields.Nested(MeasurementDto.measurement)),
         'health_status': fields.Nested(health_status, description='Tree health status'),
         'files': fields.List(fields.Nested(MeasurementDto.tree_photo), required=False),
 
@@ -45,23 +46,6 @@ class TreeDto:
         'files': fields.List(fields.Nested(MeasurementDto.tree_photo_create), required=True),
     })
 
-    tree_wm = ns.model('tree_wm', {
-        'id': fields.Integer(readonly=True, description='Tree unique identifier'),
-        'initial_creator_id': fields.Integer(required=True, description='Initial creator ID'),
-        'tree_type_id': fields.Integer(required=False, description='Tree type ID'),
-        'latitude': fields.String(required=True, description='Tree latitude'),
-        'longitude': fields.String(required=True, description='Tree longitude'),
-        'co2_stored': fields.Float(default=0.00, description='CO2 stored by the tree in kg'),
-        'health_status_id': fields.Integer(description='Tree health status ID'),
-        'created_at': fields.DateTime(readonly=True, description='Tree creation date'),
-        'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
-
-        'tree_type': fields.Nested(tree_type, description='Tree type'),
-        'measurements': fields.List(fields.Nested(MeasurementDto.measurement)),
-        'health_status': fields.Nested(health_status, description='Tree health statusinfo'),
-        'files': fields.List(fields.Nested(MeasurementDto.tree_photo), required=False),
-    })
-
     tree_update = ns.model('tree_update', {
         'id': fields.Integer(readonly=True, required=True, description='Tree unique identifier'),
         'tree_type_id': fields.Integer(required=False, description='Type of tree'),
@@ -72,10 +56,6 @@ class TreeDto:
 
     tree_page = ns.clone('tree_page', pagination_base, {
         'trees': fields.List(fields.Nested(tree, many=True, skip_none=True))
-    })
-
-    tree_page_wm = ns.clone('tree_page_wm', pagination_base, {
-        'tree_wm': fields.List(fields.Nested(tree_wm, many=True, skip_none=True))
     })
 
     tree_type_page = ns.clone('tree_type_page', pagination_base, {
