@@ -24,7 +24,6 @@ class MeasurementDto:
         'id': fields.Integer(readonly=True, description='Measurement unique identifier'),
         'tree_id': fields.Integer(required=True, description='Related tree ID'),
         'user_id': fields.Integer(required=False, description='Related user ID'),
-        'suspected_tree_type': fields.String(required=False, description='Suspected tree type'),
         'height': fields.Float(required=True, description='Height of the tree in meters'),
         'inclination': fields.Integer(required=True, description='Inclination angle in degrees'),
         'trunk_diameter': fields.Float(required=True, description='Trunk diameter in meters'),
@@ -36,7 +35,6 @@ class MeasurementDto:
         'id': fields.Integer(readonly=True, description='Measurement unique identifier'),
         'tree_id': fields.Integer(required=True, description='Related tree ID'),
         'user_id': fields.Integer(required=False, description='Related user ID'),
-        'suspected_tree_type': fields.String(required=False, description='Suspected tree type'),
         'height': fields.Float(required=True, description='Height of the tree in meters'),
         'inclination': fields.Integer(required=True, description='Inclination angle in degrees'),
         'trunk_diameter': fields.Float(required=True, description='Trunk diameter in meters'),
@@ -46,7 +44,6 @@ class MeasurementDto:
     })
 
     create_measurement = ns.model('create_measurement', {
-        'suspected_tree_type': fields.String(required=False, description='Suspected tree type'),
         'height': fields.Float(required=True, description='Height of the tree in meters'),
         'inclination': fields.Integer(required=True, description='Inclination angle in degrees'),
         'trunk_diameter': fields.Float(required=True, description='Trunk diameter in meters'),
@@ -54,7 +51,6 @@ class MeasurementDto:
     })
 
     create_measurement_with_files = ns.model('create_measurement_with_files', {
-        'suspected_tree_type': fields.String(required=False, description='Suspected tree type'),
         'height': fields.Float(required=True, description='Height of the tree in meters'),
         'inclination': fields.Integer(required=True, description='Inclination angle in degrees'),
         'trunk_diameter': fields.Float(required=True, description='Trunk diameter in meters'),

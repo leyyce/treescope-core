@@ -25,7 +25,6 @@ class Tree(db.Model):
     longitude: Mapped[Decimal] = mapped_column(DECIMAL(9, 6), nullable=False)
     # co2_stored: Mapped[Float] = mapped_column(DECIMAL(10, 2), default=0.00, nullable=False)
     health_status_id: Mapped[int] = mapped_column(ForeignKey('health_status.id'), default=1, nullable=False)
-    environmental_impact: Mapped[Float] = mapped_column(DECIMAL(10, 2), default=0.00, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
 
@@ -34,11 +33,12 @@ class Tree(db.Model):
     health_status: Mapped['HealthStatus'] = db.relationship(back_populates='tree', lazy=True)
     files: Mapped[list['TreePhoto']] = db.relationship(back_populates='tree', lazy=True)
 
-
+    '''
     __table_args__ = (
-         # CheckConstraint('co2_stored >= 0', name='check_co2_stored_positive'),
-         CheckConstraint('environmental_impact >= 0', name='check_environmental_impact_positive'),
-     )
+        CheckConstraint('co2_stored >= 0', name='check_co2_stored_positive'),
+        CheckConstraint('environmental_impact >= 0', name='check_environmental_impact_positive'),
+    )
+    '''
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

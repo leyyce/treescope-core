@@ -27,7 +27,6 @@ class TreeDto:
         'longitude': fields.String(required=True, description='Tree longitude'),
         'co2_stored': fields.Float(default=0.00, description='CO2 stored by the tree in kg'),
         'health_status_id': fields.Integer(description='Tree health status ID'),
-        'environmental_impact': fields.Float(default=0.00, description='Environmental impact score'),
         'created_at': fields.DateTime(readonly=True, description='Tree creation date'),
         'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
 
@@ -54,7 +53,6 @@ class TreeDto:
         'longitude': fields.String(required=True, description='Tree longitude'),
         'co2_stored': fields.Float(default=0.00, description='CO2 stored by the tree in kg'),
         'health_status_id': fields.Integer(description='Tree health status ID'),
-        'environmental_impact': fields.Float(default=0.00, description='Environmental impact score'),
         'created_at': fields.DateTime(readonly=True, description='Tree creation date'),
         'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
         'measurements': fields.List(fields.Nested(MeasurementDto.measurement)),

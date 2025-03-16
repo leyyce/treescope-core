@@ -14,7 +14,6 @@ class TreeService:
             "latitude": data["latitude"],
             "longitude": data["longitude"],
             "health_status_id": data.get("health_status_id", 1),
-            "environmental_impact": data.get("environmental_impact", 0.00)
         }
 
         new_tree = Tree(**tree_data)

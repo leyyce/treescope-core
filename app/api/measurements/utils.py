@@ -94,7 +94,6 @@ class TreePhotoSchema(Schema):
     description = fields.String(required=False, validate=Length(max=256))
    
 class MeasurementSchema(Schema):
-    suspected_tree_type = fields.String(required=False, validate=validate.Length(max=128))
     height = fields.Float(required=True, validate=validate.Range(min=0, min_inclusive=False))
     inclination = fields.Integer(
         required=True,

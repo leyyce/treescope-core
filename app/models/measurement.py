@@ -8,7 +8,6 @@ class Measurement(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     tree_id: Mapped[int] = mapped_column(ForeignKey('tree.id'), nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
-    suspected_tree_type: Mapped[str] = mapped_column(nullable=True)
     height: Mapped[float] = mapped_column(nullable=False)
     inclination: Mapped[int] = mapped_column(Integer, nullable=False)
     trunk_diameter: Mapped[float] = mapped_column(nullable=False)
