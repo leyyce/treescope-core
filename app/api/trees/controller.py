@@ -60,7 +60,7 @@ class TreeList(Resource):
 @ns.route('/user-tree')
 class UserTreeList(Resource):
     @ns.doc(
-        'List of all registered trees from one user w/o measurement',
+        'List of all registered trees from one user',
         responses={
             200: ('List of trees successfully sent', TreeDto.tree_page),
             401: 'Unauthorized'
@@ -77,29 +77,6 @@ class UserTreeList(Resource):
             return "User not logged in or user that is logged in doesn't exist anymore", 401 
 
         return TreeService.get_trees(user.id)
-
-
-@ns.route('/user-tree-wm')
-class UserTreeList(Resource):
-    @ns.doc(
-        'List of all registered trees from one user with measurements',
-        responses={
-            200: ('List of trees successfully sent', TreeDto.tree_page),
-            401: 'Unauthorized'
-        },
-        security='jwt_header',
-    )
-    @ns.marshal_list_with(TreeDto.tree_page)
-    @ns.expect(pagination_parser)
-    @auth_required
-    def get(self):
-        """Lists all trees with the user id and the measurements."""
-        user = current_user()
-        if not user:
-            return "User not logged in or user that is logged in doesn't exist anymore", 401 
-
-        return TreeService.get_trees_wm(user.id)
-
 
 @ns.route('/<int:id>')
 @ns.param('id', 'The tree identifier')

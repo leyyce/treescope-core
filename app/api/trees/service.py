@@ -49,24 +49,6 @@ class TreeService:
             'trees': tree_pagination.items,
         }
         return resp, 200
-    
-    @staticmethod
-    def get_trees_wm(user_id):
-
-        tree_pagination = Tree.query.options(db.joinedload(Tree.measurements),db.joinedload(Tree.health_status), db.joinedload(Tree.files)).filter(Tree.initial_creator_id == user_id).paginate(error_out=False)
-        resp = {
-            'count': len(tree_pagination.items),
-            'total': tree_pagination.total,
-            'page': tree_pagination.page,
-            'per_page': tree_pagination.per_page,
-            'pages': tree_pagination.pages,
-            'has_next': tree_pagination.has_next,
-            'has_prev': tree_pagination.has_prev,
-            'prev_num': tree_pagination.prev_num,
-            'next_num': tree_pagination.next_num,
-            'trees': tree_pagination.items,
-        }
-        return resp, 200
 
     @staticmethod
     def get_tree_by_id(tree_id):
