@@ -140,3 +140,17 @@ class Tree(Resource):
         if code != 200:
             ns.abort(code, message)
         return message, code
+
+@ns.route('/types')
+class TreeTypeList(Resource):
+    @ns.doc(
+        'List of all trees types',
+        responses={
+            200: ('List of tree types successfully sent', TreeDto.tree_type_page)
+        },
+    )
+    @ns.marshal_list_with(TreeDto.tree_type_page)
+    @ns.expect(pagination_parser)
+    def get(self):
+        """get a paginated list of all trees"""
+        return TreeService.get_tree_types()

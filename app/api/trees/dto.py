@@ -6,17 +6,17 @@ from ..measurements.dto import MeasurementDto
 class TreeDto:
     ns = Namespace('trees', description='Tree related operations')
 
+    tree_type = ns.model('tree_type', {
+        'id': fields.Integer(required=True, description='The tree type'),
+        'name': fields.String(required=True, description='The tree name'),
+        'scientific_name': fields.String(required=False, description='The tree scientific name'),
+        'description': fields.String(required=False, description='The tree description'),
+    })
+
     health_status = ns.model('health_status', {
         'id': fields.Integer(readonly=True, description='Health status unique identifier'),
         'name': fields.String(required=True, description='Health status name'),
         'description': fields.String(required=True, description='Health status description'),
-    })
-
-    tree_type = ns.model('tree_type', {
-        'id': fields.Integer(readonly=True, description='Tree type unique identifier'),
-        'name': fields.String(required=True, description='Tree type name'),
-        'scientific_name': fields.String(required=False, description='Tree type scientific name'),
-        'description': fields.String(required=False, description='Tree type description'),
     })
 
     tree = ns.model('tree', {
@@ -74,6 +74,10 @@ class TreeDto:
 
     tree_page_wm = ns.clone('tree_page_wm', pagination_base, {
         'tree_wm': fields.List(fields.Nested(tree_wm, many=True, skip_none=True))
+    })
+
+    tree_type_page = ns.clone('tree_type_page', pagination_base, {
+        'tree_types': fields.List(fields.Nested(tree_type, many=True, skip_none=True))
     })
 
    

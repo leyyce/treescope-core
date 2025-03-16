@@ -1,4 +1,4 @@
-from app.models.tree import Tree
+from app.models.tree import Tree, TreeType
 from app.api.measurements.service import MeasurementService
 from app.extensions import db
 
@@ -90,3 +90,20 @@ class TreeService:
         db.session.commit()
 
         return tree, 200
+
+    @staticmethod
+    def get_tree_types():
+        tree_type_pagination = TreeType.query.paginate(error_out=False)
+        resp = {
+            'count': len(tree_type_pagination.items),
+            'total': tree_type_pagination.total,
+            'page': tree_type_pagination.page,
+            'per_page': tree_type_pagination.per_page,
+            'pages': tree_type_pagination.pages,
+            'has_next': tree_type_pagination.has_next,
+            'has_prev': tree_type_pagination.has_prev,
+            'prev_num': tree_type_pagination.prev_num,
+            'next_num': tree_type_pagination.next_num,
+            'tree_types': tree_type_pagination.items,
+        }
+        return resp, 200
