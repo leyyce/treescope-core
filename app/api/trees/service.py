@@ -1,6 +1,6 @@
-from app.models.tree import Tree, HealthStatus
+from app.models.tree import Tree
 from app.api.measurements.service import MeasurementService
-from app.extensions import db, guard
+from app.extensions import db
 
 
 class TreeService:
@@ -10,11 +10,10 @@ class TreeService:
         
         tree_data = {
             "initial_creator_id": user_id,
-            "tree_type": data.get("tree_type"),
+            "tree_type_id": data.get("tree_type_id"),
             "latitude": data["latitude"],
             "longitude": data["longitude"],
-            "health_status": data.get("health_status", 1),
-            "co2_stored": data.get("co2_stored", 0.00),
+            "health_status_id": data.get("health_status_id", 1),
             "environmental_impact": data.get("environmental_impact", 0.00)
         }
 
@@ -33,9 +32,9 @@ class TreeService:
     @staticmethod
     def get_trees(user_id=None):
 
-        query = Tree.query.options(db.joinedload(Tree.health_status_info))
+        query = Tree.query.options(db.joinedload(Tree.health_status))
         if user_id is not None:
-            query = Tree.query.options(db.joinedload(Tree.health_status_info), db.joinedload(Tree.files)).filter(Tree.initial_creator_id == user_id)
+            query = Tree.query.options(db.joinedload(Tree.health_status), db.joinedload(Tree.files)).filter(Tree.initial_creator_id == user_id)
 
         tree_pagination = query.paginate(error_out=False)
         resp = {
@@ -55,7 +54,7 @@ class TreeService:
     @staticmethod
     def get_trees_wm(user_id):
 
-        tree_pagination = Tree.query.options(db.joinedload(Tree.measurements),db.joinedload(Tree.health_status_info), db.joinedload(Tree.files)).filter(Tree.initial_creator_id == user_id).paginate(error_out=False)
+        tree_pagination = Tree.query.options(db.joinedload(Tree.measurements),db.joinedload(Tree.health_status), db.joinedload(Tree.files)).filter(Tree.initial_creator_id == user_id).paginate(error_out=False)
         resp = {
             'count': len(tree_pagination.items),
             'total': tree_pagination.total,
@@ -72,7 +71,7 @@ class TreeService:
 
     @staticmethod
     def get_tree_by_id(tree_id):
-        tree = Tree.query.options(db.joinedload(Tree.measurements), db.joinedload(Tree.health_status_info), db.joinedload(Tree.files)).filter_by(id=tree_id).first()
+        tree = Tree.query.options(db.joinedload(Tree.measurements), db.joinedload(Tree.health_status), db.joinedload(Tree.files)).filter_by(id=tree_id).first()
         if not tree:
             return 'Tree not found', 404
         return tree, 200
@@ -86,10 +85,7 @@ class TreeService:
         
         ## Optional values
         tree.tree_type = tree_data.get('tree_type', tree.tree_type)
-        health_status = tree_data.get('health_status')
-        if health_status:
-            health_status = HealthStatus.query.filter_by(status=health_status).first()
-            tree.health_status = health_status.id
+        tree.health_status_id = tree_data.get('health_status_id')
         tree.latitude = tree_data.get('latitude', tree.latitude)
         tree.longitude = tree_data.get('longitude', tree.latitude)
         db.session.commit()

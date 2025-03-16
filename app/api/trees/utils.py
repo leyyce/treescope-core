@@ -1,6 +1,7 @@
-from marshmallow.validate import Regexp, OneOf
-from marshmallow import Schema, fields, validate, validates_schema
+from marshmallow.validate import Regexp
+from marshmallow import Schema, fields, validate
 from marshmallow.fields import Nested
+
 from app.auth.utils import validate_decimal_precision
 from app.api.measurements.utils import TreePhotoSchema, MeasurementSchema
 
@@ -12,7 +13,7 @@ class TreeSchema(Schema):
     - Longitude (Float)
     - Health Status (String)
     """
-    tree_type = fields.String(required=False, validate=validate.Length(max=128))
+    tree_type_id = fields.Integer(required=False, default=1)
     latitude = fields.Decimal(
         as_string=True,
         required=True,
@@ -34,7 +35,7 @@ class TreeSchema(Schema):
             lambda value: validate_decimal_precision(value, 9, 6),
         ],
     )
-    health_status = fields.Integer(required=False, default=1)
+    health_status_id = fields.Integer(required=False, default=1)
     measurement = fields.Nested(MeasurementSchema, required=True)
     files = fields.List(Nested(TreePhotoSchema), required=True, validate=validate.Length(min=2))
 
@@ -48,7 +49,7 @@ class TreeUpdateSchema(Schema):
     """
 
     id = fields.Integer(dump_only=True)
-    tree_type = fields.String(required=False, validate=validate.Length(max=128))
+    tree_type_id = fields.Integer(required=False, default=1)
     latitude = fields.Decimal(
         as_string=True,
         required=False,
@@ -70,10 +71,4 @@ class TreeUpdateSchema(Schema):
             lambda value: validate_decimal_precision(value, 9, 6),
         ],
     )
-    health_status = fields.String(
-        required=False,
-        validate=OneOf(
-            ["Unknown", "Unhealthy", "Healthy"],
-            error="Invalid health status! Must be one of: 'Unknown', 'Unhealthy', 'Healthy'."
-        ),
-    )
+    health_status_id = fields.Integer(required=False, default=1)

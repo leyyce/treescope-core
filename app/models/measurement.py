@@ -1,6 +1,6 @@
 
 from app.extensions import db
-from sqlalchemy import Integer, Float, ForeignKey, DECIMAL, DateTime, CheckConstraint, event, func
+from sqlalchemy import Integer, ForeignKey, DateTime, CheckConstraint, event, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 
@@ -9,9 +9,9 @@ class Measurement(db.Model):
     tree_id: Mapped[int] = mapped_column(ForeignKey('tree.id'), nullable=False)
     user_id: Mapped[int] = mapped_column(ForeignKey('user.id'), nullable=True)
     suspected_tree_type: Mapped[str] = mapped_column(nullable=True)
-    height: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
+    height: Mapped[float] = mapped_column(nullable=False)
     inclination: Mapped[int] = mapped_column(Integer, nullable=False)
-    trunk_diameter: Mapped[Float] = mapped_column(DECIMAL(5, 2), nullable=False)
+    trunk_diameter: Mapped[float] = mapped_column(nullable=False)
     notes: Mapped[str] = mapped_column(nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
 

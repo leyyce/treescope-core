@@ -2,8 +2,7 @@ import os
 import base64
 import hashlib
 from marshmallow.validate import Length
-from marshmallow import Schema, fields, validate, validates_schema
-from decimal import Decimal
+from marshmallow import Schema, fields, validate
 from werkzeug.utils import secure_filename
 from flask_restx import reqparse
 from werkzeug.datastructures import FileStorage
@@ -96,16 +95,13 @@ class TreePhotoSchema(Schema):
    
 class MeasurementSchema(Schema):
     suspected_tree_type = fields.String(required=False, validate=validate.Length(max=128))
-    height = fields.Decimal(
-        required=True,
-        validate=validate.Range(min=Decimal("0.01"))  # Höhe muss positiv sein
-    )
+    height = fields.Float(required=True, validate=validate.Range(min=0, min_inclusive=False))
     inclination = fields.Integer(
         required=True,
         validate=validate.Range(min=0, max=90)  # Neigung muss zwischen 0 und 90 liegen
     )
-    trunk_diameter = fields.Decimal(
+    trunk_diameter = fields.Float(
         required=True,
-        validate=validate.Range(min=Decimal("0.01"))  # Durchmesser muss positiv sein
+        validate=validate.Range(min=0, min_inclusive=False)  # Durchmesser muss positiv sein
     )
     notes = fields.String(required=False, allow_none=True)
