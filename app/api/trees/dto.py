@@ -55,6 +55,8 @@ class TreeDto:
         'health_status_id': fields.Integer(description='Tree health status ID'),
         'created_at': fields.DateTime(readonly=True, description='Tree creation date'),
         'updated_at': fields.DateTime(readonly=True, description='Tree update date'),
+
+        'tree_type': fields.Nested(tree_type, description='Tree type'),
         'measurements': fields.List(fields.Nested(MeasurementDto.measurement)),
         'health_status': fields.Nested(health_status, description='Tree health statusinfo'),
         'files': fields.List(fields.Nested(MeasurementDto.tree_photo), required=False),
@@ -62,14 +64,14 @@ class TreeDto:
 
     tree_update = ns.model('tree_update', {
         'id': fields.Integer(readonly=True, required=True, description='Tree unique identifier'),
-        'tree_type_id': fields.String(required=False, description='Type of tree'),
+        'tree_type_id': fields.Integer(required=False, description='Type of tree'),
         'latitude': fields.String(required=False, description='Tree latitude'),
         'longitude': fields.String(required=False, description='Tree longitude'),
         'health_status_id': fields.Integer(required=False, description='Tree health status ID'),
     })
 
     tree_page = ns.clone('tree_page', pagination_base, {
-        'trees': fields.List(fields.Nested(tree_wm, many=True, skip_none=True))
+        'trees': fields.List(fields.Nested(tree, many=True, skip_none=True))
     })
 
     tree_page_wm = ns.clone('tree_page_wm', pagination_base, {

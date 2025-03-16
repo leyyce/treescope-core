@@ -48,10 +48,10 @@ class TreeList(Resource):
     @ns.doc(
         'List of all registered trees from all users',
         responses={
-            200: ('List of trees successfully sent', TreeDto.tree_page)
+            200: ('List of trees successfully sent', TreeDto.tree_page_wm)
         },
     )
-    @ns.marshal_list_with(TreeDto.tree_page)
+    @ns.marshal_list_with(TreeDto.tree_page_wm)
     @ns.expect(pagination_parser)
     def get(self):
         """get a paginated list of all trees"""
@@ -127,7 +127,7 @@ class Tree(Resource):
         security='jwt_header',
     )
     @ns.expect(TreeDto.tree_update)
-    @ns.marshal_with(TreeDto.tree)
+    @ns.marshal_with(TreeDto.tree_wm)
     @roles_required('Admin')
     def patch(self, id):
         """update tree data"""
