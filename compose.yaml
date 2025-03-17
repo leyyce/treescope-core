@@ -14,7 +14,7 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - PRAETORIAN_CONFIRMATION_URI=https://${DOMAIN}/auth/finalize
       - PRAETORIAN_RESET_URI=https://${DOMAIN}/auth/reset-password
-      - PRAETORIAN_MAIL_CHANGE_URI=https://${DOMAIN}/auth/reset-password
+      - TREESCOPE_MAIL_CHANGE_URI=https://${DOMAIN}/auth/change-mail
     volumes:
       - user_uploads:/usr/src/treescope_core/app/static/uploads
     depends_on:
